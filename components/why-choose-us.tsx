@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 
 interface FeatureProps {
@@ -45,55 +46,47 @@ const WhyChooseUs = () => {
   ];
   return (
     <section
-      className="w-full bg-[#7E22CE] py-16 md:py-24 relative overflow-hidden"
+      className="w-full bg-mysecondary py-16 md:py-24 relative overflow-hidden"
       id="why-us"
     >
       {/* Grid Background Pattern */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <div className="w-full h-full grid grid-cols-12">
-          {[...Array(13)].map((_, i) => (
-            <div key={`vl-${i}`} className="h-full border-r border-white"></div>
-          ))}
-        </div>
-        <div className="absolute inset-0 w-full h-full grid grid-rows-12">
-          {[...Array(13)].map((_, i) => (
-            <div key={`hl-${i}`} className="w-full border-b border-white"></div>
-          ))}
-        </div>
+      <div className="absolute w-full h-full inset-0 pointer-events-none z-10">
+        <Image
+          src="/assets/bggrid.png"
+          alt="Grid Pattern"
+          layout="fill"
+          className=" w-full h-full object-cover object-center"
+        />
       </div>
-      <div className="container mx-auto px-4 relative">
+      <div className="container mx-auto px-3 relative flex flex-col items-center z-20">
         {/* Section Header */}
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-12 md:mb-16">
           Why Choose Us?
         </h2>{" "}
         {/* Features Grid - Using gridlines as shown in the image */}{" "}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto relative">
-          {/* Gridlines overlay */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none hidden lg:block">
-            <div className="w-full h-full grid grid-cols-4">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={`v-${i}`}
-                  className="h-full border-r border-white last:border-r-0"
-                ></div>
-              ))}
-            </div>
-            <div className="absolute inset-0 w-full h-full grid grid-rows-4">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={`h-${i}`}
-                  className="w-full border-b border-white last:border-b-0"
-                ></div>
-              ))}
-            </div>
+        <div className="self-stretch rounded-3xl outline-1 outline-white/20 inline-flex justify-start items-end overflow-hidden mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto relative bg">
+            {features.map((feature, index) => (
+              //   <FeatureItem
+              //     key={index}
+              //     title={feature.title}
+              //     description={feature.description}
+              //   />
+              <div
+                key={index}
+                className="self-stretch p-11 bg-gradient-to-b from-mywhitetext/10 to-mywhitetext/0 shadow-[inset_0px_4px_17.600000381469727px_0px_rgba(255,255,255,0.06)] border-mywhitetext/20 inline-flex flex-col justify-between items-center overflow-hidden"
+              >
+                <div className="flex flex-col justify-start items-center gap-5">
+                  <div className="self-stretch text-center justify-start text-mywhitetext text-2xl font-bold">
+                    {feature.title}
+                  </div>
+                  <div className="self-stretch text-center justify-start text-mywhitetext/80 text-base font-medium leading-snug">
+                    {feature.description}
+                  </div>
+                </div>
+              </div>
+            ))}{" "}
           </div>
-          {features.map((feature, index) => (
-            <FeatureItem
-              key={index}
-              title={feature.title}
-              description={feature.description}
-            />
-          ))}{" "}
         </div>
       </div>
     </section>
