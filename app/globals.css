@@ -72,10 +72,7 @@
   --yellow: oklch(85% 0.18 85); /* Yellow */
 
   /* My things */
-  --stroke: var(
-    --stroke,
-    linear-gradient(238deg, #842dff 1.39%, #d09bff 47.74%, #842dff 100%)
-  );
+  --stroke: linear-gradient(238deg, #842dff 1.39%, #d09bff 47.74%, #842dff 100%);
 
   /* Map custom colors to theme */
   --background: var(--white);

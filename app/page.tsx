@@ -6,7 +6,7 @@ const page = () => {
     <div>
       <div className="p-8 text-3xl font-bold text-purple">Fuchsiu Academy</div>
       <ColorShowcase />
-      <div>test</div>
+      <div className=" bg-stroke text-7xl font-bold">test</div>
     </div>
   );
 };
