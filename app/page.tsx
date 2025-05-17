@@ -3,10 +3,13 @@ import { ColorShowcase } from "./components/color-showcase";
 
 const page = () => {
   return (
-    <div>
-      <div className="p-8 text-3xl font-bold text-purple">Fuchsiu Academy</div>
+    <div className="container mx-auto">
+      <div className="text-3xl font-bold text-purple">Fuchsiu Academy</div>
       <ColorShowcase />
-      <div className=" bg-stroke text-7xl font-bold">test</div>
+      <div className="text-7xl font-bold gradient-text py-5">
+        Kalana Didulanga
+      </div>
+      <div className="text-2xl gradient-text">Course Duration p</div>
     </div>
   );
 };
