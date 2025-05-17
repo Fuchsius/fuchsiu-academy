@@ -1,10 +1,8 @@
 import React from "react";
-import { Header } from "@/components/header";
-import { StudentRating } from "@/components/student-rating";
-import { FeatureCard } from "@/components/feature-card";
 import HeroSection from "./HeroSection";
 import WhyChooseUs from "@/components/why-choose-us";
 import AboutUs from "@/components/about-us";
+import TestimonialsSection from "@/components/testimonials-section";
 
 const HomePage = () => {
   return (
@@ -17,6 +15,9 @@ const HomePage = () => {
 
       {/* About Us Section */}
       <AboutUs />
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
     </div>
   );
 };
