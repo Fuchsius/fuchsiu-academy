@@ -130,7 +130,7 @@ const TestimonialsSection = () => {
           {/* Testimonial Cards with Swiper */}
           <div className="max-w-6xl mx-auto my-12 md:my-16">
             <Swiper
-              modules={[Navigation, Pagination]}
+              modules={[Navigation]}
               spaceBetween={24}
               slidesPerView={1}
               navigation={{
@@ -167,7 +167,7 @@ const TestimonialsSection = () => {
             {/* Custom Navigation Buttons */}
             <div className="flex justify-center gap-4 mt-8">
               <button
-                className="swiper-button-prev w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className=" w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
                 aria-label="Previous testimonials"
               >
                 <svg
@@ -184,7 +184,7 @@ const TestimonialsSection = () => {
                 </svg>
               </button>
               <button
-                className="swiper-button-next w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className=" w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
                 aria-label="Next testimonials"
               >
                 <svg
