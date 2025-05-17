@@ -122,7 +122,7 @@
   font-family: Raleway;
   font-style: normal;
   font-weight: 700;
-  line-height: 20px; /* 83.333% */
+  line-height: normal; /* This will allow proper rendering of descenders */
 }
 
 .dark {
