@@ -125,6 +125,11 @@
   line-height: normal; /* This will allow proper rendering of descenders */
 }
 
+.gradient-bg {
+  background: var(--stroke);
+  line-height: normal; /* This will allow proper rendering of descenders */
+}
+
 .dark {
   /* Dark theme based on the same color palette */
   --background: var(--dark-blue);
