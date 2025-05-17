@@ -1,7 +1,14 @@
 import React from "react";
+import { ColorShowcase } from "./components/color-showcase";
 
 const page = () => {
-  return <div className="text-3xl font-bold">KayD</div>;
+  return (
+    <div>
+      <div className="p-8 text-3xl font-bold text-purple">Fuchsiu Academy</div>
+      <ColorShowcase />
+      <div>test</div>
+    </div>
+  );
 };
 
 export default page;

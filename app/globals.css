@@ -5,6 +5,19 @@
 @theme {
   --font-sans: var(--font-raleway), sans-serif;
 
+  /* Custom Colors */
+  --color-purple: var(--purple);
+  --color-dark-blue: var(--dark-blue);
+  --color-light-purple: var(--light-purple);
+  --color-yellow: var(--yellow);
+
+  /* My Colors */
+  --color-mysecondary: #842dff;
+  --color-myprimary: #011627;
+  --color-mytextbg: #f6f7f8;
+  --color-mystar: #facc15;
+  --color-mywhitetext: #fff;
+
   /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -51,21 +64,35 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Color theme based on image */
+  --purple: oklch(56% 0.25 285); /* Bright purple */
+  --dark-blue: oklch(15% 0.15 250); /* Dark blue */
+  --light-purple: oklch(70% 0.15 290); /* Light purple/lavender */
+  --white: oklch(100% 0 0); /* White */
+  --yellow: oklch(85% 0.18 85); /* Yellow */
+
+  /* My things */
+  --stroke: var(
+    --stroke,
+    linear-gradient(238deg, #842dff 1.39%, #d09bff 47.74%, #842dff 100%)
+  );
+
+  /* Map custom colors to theme */
+  --background: var(--white);
+  --foreground: var(--dark-blue);
+  --card: var(--white);
+  --card-foreground: var(--dark-blue);
+  --popover: var(--white);
+  --popover-foreground: var(--dark-blue);
+  --primary: var(--purple);
+  --primary-foreground: var(--white);
+  --secondary: var(--light-purple);
+  --secondary-foreground: var(--dark-blue);
+  --muted: oklch(90% 0.02 290); /* Light purple but muted */
+  --muted-foreground: oklch(50% 0.05 285);
+  --accent: var(--yellow);
+  --accent-foreground: var(--dark-blue);
+  --destructive: oklch(60% 0.2 25); /* Red */
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -85,21 +112,22 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* Dark theme based on the same color palette */
+  --background: var(--dark-blue);
+  --foreground: var(--white);
+  --card: oklch(20% 0.15 250); /* Slightly lighter than dark blue */
+  --card-foreground: var(--white);
+  --popover: oklch(20% 0.15 250);
+  --popover-foreground: var(--white);
+  --primary: var(--purple);
+  --primary-foreground: var(--white);
+  --secondary: var(--light-purple);
+  --secondary-foreground: var(--white);
+  --muted: oklch(30% 0.08 260);
+  --muted-foreground: oklch(75% 0.05 290);
+  --accent: var(--yellow);
+  --accent-foreground: var(--dark-blue);
+  --destructive: oklch(65% 0.2 30); /* Brighter red for dark mode */
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
