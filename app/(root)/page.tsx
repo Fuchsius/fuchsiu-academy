@@ -4,6 +4,7 @@ import { StudentRating } from "@/components/student-rating";
 import { FeatureCard } from "@/components/feature-card";
 import HeroSection from "./HeroSection";
 import WhyChooseUs from "@/components/why-choose-us";
+import AboutUs from "@/components/about-us";
 
 const HomePage = () => {
   return (
@@ -13,6 +14,9 @@ const HomePage = () => {
 
       {/* Why Choose Us Section */}
       <WhyChooseUs />
+
+      {/* About Us Section */}
+      <AboutUs />
     </div>
   );
 };
