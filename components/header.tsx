@@ -41,9 +41,9 @@ export const Header = () => {
 
   const NAV_ITEMS = [
     { name: "Why Us", href: "#why-us" },
-    { name: "About", href: "#about" },
+    { name: "About", href: "#about-us" },
     { name: "Testimonials", href: "#testimonials" },
-    { name: "Contact", href: "#contact" },
+    { name: "Contact", href: "#contact-us" },
   ];
 
   // Desktop Action Buttons - show different options when logged in

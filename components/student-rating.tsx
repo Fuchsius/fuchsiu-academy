@@ -11,7 +11,9 @@ export const StudentRating = () => {
             style={{ zIndex: 5 - item }}
           >
             {/* Replace with actual student images when available */}
-            <div className="w-full h-full bg-gradient-to-r from-purple-300 to-purple-500"></div>
+            <div className="w-full h-full bg-gradient-to-r from-purple-300 to-purple-500">
+              <img src={"assets/2.png"} />
+            </div>
           </div>
         ))}
       </div>

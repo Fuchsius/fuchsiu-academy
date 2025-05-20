@@ -46,7 +46,7 @@ const HeroSection = () => {
       </div>
 
       {/* Feature Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 max-w-6xl mx-auto">
         <FeatureCard title="Online" subtitle="Bootcamp" />
         <FeatureCard title="4 weeks" subtitle="Course Duration" />
         <FeatureCard title="6h/ Week" subtitle="Bootcamp" />
