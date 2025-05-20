@@ -17,29 +17,42 @@ const Footer = () => {
             <div className="flex flex-wrap gap-2">
               <Link
                 href="#why-us"
-                className="px-4 py-2 rounded-full border border-gray-200 text-myprimary hover:bg-gray-50 transition-colors text-sm"
+                className="px-4 py-2 rounded-full border border-secondary text-myprimary hover:bg-secondary/50 transition-colors text-sm"
               >
                 Why Us
               </Link>
               <Link
                 href="#about-us"
-                className="px-4 py-2 rounded-full border border-gray-200 text-myprimary hover:bg-gray-50 transition-colors text-sm"
+                className="px-4 py-2 rounded-full border border-secondary text-myprimary hover:bg-secondary/50 transition-colors text-sm"
               >
                 About
               </Link>
               <Link
                 href="#testimonials"
-                className="px-4 py-2 rounded-full border border-gray-200 text-myprimary hover:bg-gray-50 transition-colors text-sm"
+                className="px-4 py-2 rounded-full border border-secondary text-myprimary hover:bg-secondary/50 transition-colors text-sm"
               >
                 Testimonials
               </Link>
               <Link
                 href="#contact-us"
-                className="px-4 py-2 rounded-full border border-gray-200 text-myprimary hover:bg-gray-50 transition-colors text-sm"
+                className="px-4 py-2 rounded-full border border-secondary text-myprimary hover:bg-secondary/50 transition-colors text-sm"
               >
                 Contact
               </Link>
             </div>
+            <Link
+              href="https://fuchsius.com"
+              target="_blank"
+              className="flex items-center mt-8"
+            >
+              <Image
+                src="/assets/fuchsius-logo.png"
+                alt="Fuchsius Logo"
+                width={200}
+                height={50}
+                className="inline-block mr-2"
+              />
+            </Link>
           </div>
 
           {/* Contact Us */}
@@ -167,23 +180,13 @@ const Footer = () => {
 
         {/* Logo and Copyright */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0">
-              <Link href="/" className="flex items-center">
-                <div className="text-purple-600 font-bold text-2xl">
-                  <Image
-                    src="/assets/bggrid.png"
-                    alt="Fuchsius Logo"
-                    width={40}
-                    height={40}
-                    className="inline-block mr-2"
-                  />
-                  FUCHSIUS
-                </div>
-              </Link>
-            </div>
-            <div className="text-myprimary text-sm">
-              © {currentYear} Fuchsius Academy. All rights reserved.
+          <div className="flex flex-col md:flex-row items-center justify-center">
+            <div className="text-myprimary text-sm text-center">
+              © {currentYear}{" "}
+              <span className=" text-secondary font-medium">
+                Fuchsius Academy
+              </span>
+              . All rights reserved.
             </div>
           </div>
         </div>
