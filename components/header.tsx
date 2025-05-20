@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 export const Header = () => {
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -44,6 +46,83 @@ export const Header = () => {
     { name: "Contact", href: "#contact" },
   ];
 
+  // Desktop Action Buttons - show different options when logged in
+  const renderDesktopActions = () => {
+    if (user) {
+      return (
+        <div className="hidden lg:flex items-center space-x-4">
+          <div className="text-sm font-medium text-myprimary">
+            Hello, {user.fullName}
+          </div>
+          <button
+            onClick={logout}
+            className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm hover:opacity-90 transition-all duration-200"
+          >
+            Logout
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="hidden lg:flex items-center space-x-4">
+        <Link
+          href="/auth/signup"
+          className="inline-flex justify-center items-center w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm text-myprimary hover:text-mysecondary transition-all duration-200"
+        >
+          Sign Up
+        </Link>
+        <Link
+          href="/auth/login"
+          className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm hover:opacity-90 transition-all duration-200"
+        >
+          Login
+        </Link>
+      </div>
+    );
+  };
+
+  // Mobile Action Buttons - show different options when logged in
+  const renderMobileActions = () => {
+    if (user) {
+      return (
+        <div className="flex flex-col items-center space-y-4">
+          <div className="text-base font-medium text-myprimary">
+            Hello, {user.fullName}
+          </div>
+          <button
+            onClick={() => {
+              logout();
+              setIsMenuOpen(false);
+            }}
+            className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-40 px-4 py-3 rounded-xl font-medium text-base"
+          >
+            Logout
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center space-y-4">
+        <Link
+          href="/auth/signup"
+          className="inline-flex justify-center items-center w-40 px-4 py-3 rounded-xl font-medium text-base text-myprimary hover:text-mysecondary border border-myprimary"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Sign Up
+        </Link>
+        <Link
+          href="/auth/login"
+          className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-40 px-4 py-3 rounded-xl font-medium text-base"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Login
+        </Link>
+      </div>
+    );
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 w-full ${
@@ -70,20 +149,7 @@ export const Header = () => {
         </nav>
 
         {/* Desktop Action Buttons */}
-        <div className="hidden lg:flex items-center space-x-4">
-          <Link
-            href="/signup"
-            className="inline-flex justify-center items-center w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm text-myprimary hover:text-mysecondary transition-all duration-200"
-          >
-            Sign Up
-          </Link>
-          <Link
-            href="/login"
-            className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm hover:opacity-90 transition-all duration-200"
-          >
-            Login
-          </Link>
-        </div>
+        {renderDesktopActions()}
 
         {/* Mobile Menu Button */}
         <button
@@ -138,22 +204,7 @@ export const Header = () => {
           </nav>
 
           {/* Mobile Action Buttons */}
-          <div className="flex flex-col items-center space-y-4">
-            <Link
-              href="/signup"
-              className="inline-flex justify-center items-center w-40 px-4 py-3 rounded-xl font-medium text-base text-myprimary hover:text-mysecondary border border-myprimary"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign Up
-            </Link>
-            <Link
-              href="/login"
-              className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-40 px-4 py-3 rounded-xl font-medium text-base"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Login
-            </Link>
-          </div>
+          {renderMobileActions()}
         </div>
       </div>
     </header>
