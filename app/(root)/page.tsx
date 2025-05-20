@@ -3,6 +3,8 @@ import HeroSection from "./HeroSection";
 import WhyChooseUs from "@/components/why-choose-us";
 import AboutUs from "@/components/about-us";
 import TestimonialsSection from "@/components/testimonials-section";
+import ContactUs from "@/components/contact-us";
+import CTASection from "@/components/cta-section";
 
 const HomePage = () => {
   return (
@@ -18,6 +20,12 @@ const HomePage = () => {
 
       {/* Testimonials Section */}
       <TestimonialsSection />
+
+      {/* Contact Us Section */}
+      <ContactUs />
+
+      {/* CTA Section */}
+      <CTASection />
     </div>
   );
 };
