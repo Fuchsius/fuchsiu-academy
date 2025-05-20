@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import FormField from "@/components/form-field";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
@@ -80,7 +79,7 @@ export default function LoginPage() {
             general: "Invalid email or password. Please try again.",
           });
         }
-      } catch (error) {
+      } catch (_) {
         setErrors({
           ...errors,
           general: "An error occurred. Please try again later.",

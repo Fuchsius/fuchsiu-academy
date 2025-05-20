@@ -55,6 +55,7 @@ const AboutUs = () => {
 
             {/* Main Content */}
             <div className="space-y-6 text-myprimary">
+              {" "}
               <p className="text-base md:text-lg">
                 At Fuchsius, we are passionate about empowering the next
                 generation of developers. Specializing in the MERN stack —
@@ -62,15 +63,14 @@ const AboutUs = () => {
                 full-stack web development education accessible, practical, and
                 career-focused.
               </p>
-
               <p className="text-base md:text-lg">
-                We're not just another online course provider. Our instructors
-                are real-world developers who bring industry experience into
-                every lesson. From fundamentals to advanced projects, we guide
-                our students step-by-step to ensure they're not just learning —
-                they're building, solving, and growing.
+                We&apos;re not just another online course provider. Our
+                instructors are real-world developers who bring industry
+                experience into every lesson. From fundamentals to advanced
+                projects, we guide our students step-by-step to ensure
+                they&apos;re not just learning — they&apos;re building, solving,
+                and growing.
               </p>
-
               {/* Benefits List */}
               <ul className="space-y-3 pt-4">
                 {benefits.map((benefit, index) => (
@@ -79,14 +79,13 @@ const AboutUs = () => {
                     <span className="text-base md:text-lg">{benefit}</span>
                   </li>
                 ))}
-              </ul>
-
+              </ul>{" "}
               {/* Closing */}
               <p className="text-base md:text-lg pt-2">
                 Join hundreds of learners who have started their tech careers
-                with us. Whether you're a beginner, a university student, or
-                someone switching careers — we're here to help you code your
-                future.
+                with us. Whether you&apos;re a beginner, a university student,
+                or someone switching careers — we&apos;re here to help you code
+                your future.
               </p>
             </div>
           </div>

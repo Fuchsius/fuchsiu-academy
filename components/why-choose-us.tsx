@@ -8,19 +8,6 @@ interface FeatureProps {
   description: string;
 }
 
-const FeatureItem = ({ title, description }: FeatureProps) => {
-  return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 md:p-8 h-full">
-      <h3 className="text-xl md:text-2xl font-semibold text-white mb-3">
-        {title}
-      </h3>
-      <p className="text-white/90 text-sm md:text-base leading-relaxed">
-        {description}
-      </p>
-    </div>
-  );
-};
-
 const WhyChooseUs = () => {
   const features = [
     {

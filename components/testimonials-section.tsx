@@ -1,11 +1,10 @@
 ﻿"use client";
 
 import React from "react";
-import Image from "next/image";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
 // Import required modules
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
@@ -18,11 +17,11 @@ interface TestimonialProps {
   image: string;
 }
 
-const TestimonialCard = ({ quote, name, title, image }: TestimonialProps) => {
+const TestimonialCard = ({ quote, name, title }: TestimonialProps) => {
   return (
     <div className="bg-mytextbg rounded-2xl p-8 flex flex-col h-full">
       <p className="text-myprimary text-base md:text-lg mb-5 flex-grow leading-relaxed">
-        "{quote}"
+        &quot;{quote}&quot;
       </p>
       <div className="flex items-center mt-4">
         {/* <div className="w-12 h-12 relative mr-4">

@@ -49,7 +49,7 @@ const ContactUs = () => {
         contactNumber: "",
         message: "",
       });
-    } catch (error) {
+    } catch (_) {
       setSubmitStatus({
         success: false,
         message: "Something went wrong. Please try again later.",
