@@ -17,7 +17,6 @@ export default function SignUpPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    agreeTerms: false,
   });
 
   const [errors, setErrors] = useState({
@@ -25,14 +24,13 @@ export default function SignUpPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    agreeTerms: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     });
 
     // Clear error when field is being edited
@@ -50,7 +48,6 @@ export default function SignUpPage() {
       email: "",
       password: "",
       confirmPassword: "",
-      agreeTerms: "",
     };
 
     let isValid = true;
@@ -78,11 +75,6 @@ export default function SignUpPage() {
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
-      isValid = false;
-    }
-
-    if (!formData.agreeTerms) {
-      newErrors.agreeTerms = "You must agree to the terms and conditions";
       isValid = false;
     }
 
@@ -179,35 +171,6 @@ export default function SignUpPage() {
               error={errors.confirmPassword}
               placeholder="Confirm your password"
             />
-
-            <div className="mb-6">
-              <div className="flex items-start">
-                <input
-                  type="checkbox"
-                  id="agreeTerms"
-                  name="agreeTerms"
-                  checked={formData.agreeTerms}
-                  onChange={handleChange}
-                  className="mt-1"
-                />
-                <label
-                  htmlFor="agreeTerms"
-                  className="ml-2 text-sm text-gray-600"
-                >
-                  I agree to the{" "}
-                  <Link href="#" className="text-mysecondary hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="#" className="text-mysecondary hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-              {errors.agreeTerms && (
-                <p className="text-red-500 text-sm mt-1">{errors.agreeTerms}</p>
-              )}
-            </div>
 
             <button
               type="submit"

@@ -135,14 +135,14 @@ export default function LoginPage() {
               onChange={handleChange}
               error={errors.password}
               placeholder="Enter your password"
-              extraLabel={
-                <Link
-                  href="#"
-                  className="text-sm text-mysecondary hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              }
+              // extraLabel={
+              //   <Link
+              //     href="#"
+              //     className="text-sm text-mysecondary hover:underline"
+              //   >
+              //     Forgot password?
+              //   </Link>
+              // }
             />
 
             <FormField
@@ -175,7 +175,7 @@ export default function LoginPage() {
               <hr className="w-full border-gray-300" />
             </div>
 
-            <button
+            {/* <button
               type="button"
               className="w-full flex justify-center items-center border border-gray-300 bg-white text-myprimary py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200"
             >
@@ -198,7 +198,7 @@ export default function LoginPage() {
                 />
               </svg>
               Continue with Google
-            </button>
+            </button> */}
 
             <p className="text-center mt-6 text-gray-600">
               Don&apos;t have an account?{" "}
