@@ -1,12 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext } from "react";
+import { useSession, signIn, signOut, SessionProvider } from "next-auth/react";
 
 type User = {
   id: string;
-  fullName: string;
+  fullName?: string;
   email: string;
-  role: "student" | "instructor" | "admin";
+  role?: "student" | "instructor" | "admin";
+  name?: string;
 };
 
 interface AuthContextType {
@@ -23,52 +25,35 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// This is a compatibility layer that wraps NextAuth's session functionality
+// to provide the same interface as the old auth context
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession();
 
-  // Check if user is already logged in on mount
-  useEffect(() => {
-    // This would normally check for a token in localStorage and validate it
-    const storedUser = localStorage.getItem("academy_user");
+  const isLoading = status === "loading";
 
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem("academy_user");
+  // Convert session.user to the format expected by existing components
+  const user = session?.user
+    ? {
+        id: session.user.id || "",
+        email: session.user.email || "",
+        fullName: session.user.name || session.user.email?.split("@")[0] || "",
+        name: session.user.name || session.user.email?.split("@")[0] || "",
+        role: "student" as const,
       }
-    }
+    : null;
 
-    setIsLoading(false);
-  }, []);
-
+  // Compatibility methods
   const login = async (email: string, password: string): Promise<boolean> => {
-    // This is a mock login function for the frontend prototype
-    // In a real app, this would make an API call to authenticate
-    setIsLoading(true);
-
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock successful login for demo purposes
-      const mockUser: User = {
-        id: "123",
-        fullName: email.split("@")[0],
+      const result = await signIn("nodemailer", {
         email,
-        role: "student",
-      };
-
-      setUser(mockUser);
-      localStorage.setItem("academy_user", JSON.stringify(mockUser));
-      return true;
+        redirect: false,
+      });
+      return !result?.error;
     } catch (error) {
       console.error("Login failed:", error);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -77,35 +62,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string;
     password: string;
   }): Promise<boolean> => {
-    // This is a mock signup function for the frontend prototype
-    setIsLoading(true);
-
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock successful signup for demo purposes
-      const mockUser: User = {
-        id: "123",
-        fullName: userData.fullName,
+      // For email signup, we just call the email provider
+      // The user account will be created when they click the link
+      const result = await signIn("nodemailer", {
         email: userData.email,
-        role: "student",
-      };
-
-      setUser(mockUser);
-      localStorage.setItem("academy_user", JSON.stringify(mockUser));
-      return true;
+        redirect: false,
+      });
+      return !result?.error;
     } catch (error) {
       console.error("Signup failed:", error);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("academy_user");
+    signOut();
   };
 
   return (

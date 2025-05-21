@@ -9,13 +9,13 @@ const CTASection = () => {
     <section className="w-full py-12 md:py-16 relative overflow-hidden">
       <div className="container mx-auto px-3">
         {/* CTA Box */}
-        <div className="max-w-6xl mx-auto rounded-3xl bg-purple-600 relative overflow-hidden">
-          {/* Background Grid Pattern */}
+        <div className="max-w-6xl mx-auto rounded-3xl bg-purple-600 relative overflow-hidden">          {/* Background Grid Pattern */}
           <div className="absolute w-full h-full inset-0 pointer-events-none">
             <Image
               src="/assets/bggrid.png"
               alt="Grid Pattern"
-              layout="fill"
+              fill
+              sizes="100vw"
               className="w-full h-full object-cover object-center"
             />
           </div>

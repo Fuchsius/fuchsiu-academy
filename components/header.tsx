@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
+import { useSession, signOut } from "next-auth/react";
 
 export const Header = () => {
-  const { user, logout } = useAuth();
+  const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -45,17 +45,16 @@ export const Header = () => {
     { name: "Testimonials", href: "#testimonials" },
     { name: "Contact", href: "#contact-us" },
   ];
-
   // Desktop Action Buttons - show different options when logged in
   const renderDesktopActions = () => {
-    if (user) {
+    if (session?.user) {
       return (
         <div className="hidden lg:flex items-center space-x-4">
           <div className="text-sm font-medium text-myprimary">
-            Hello, {user.fullName}
+            Hello, {session.user.name || session.user.email}
           </div>
           <button
-            onClick={logout}
+            onClick={() => signOut()}
             className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm hover:opacity-90 transition-all duration-200"
           >
             Logout
@@ -73,7 +72,7 @@ export const Header = () => {
           Sign Up
         </Link>
         <Link
-          href="/auth/login"
+          href="/auth/sign-in"
           className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm hover:opacity-90 transition-all duration-200"
         >
           Login
@@ -81,18 +80,17 @@ export const Header = () => {
       </div>
     );
   };
-
   // Mobile Action Buttons - show different options when logged in
   const renderMobileActions = () => {
-    if (user) {
+    if (session?.user) {
       return (
         <div className="flex flex-col items-center space-y-4">
           <div className="text-base font-medium text-myprimary">
-            Hello, {user.fullName}
+            Hello, {session.user.name || session.user.email}
           </div>
           <button
             onClick={() => {
-              logout();
+              signOut();
               setIsMenuOpen(false);
             }}
             className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-40 px-4 py-3 rounded-xl font-medium text-base"
@@ -113,7 +111,7 @@ export const Header = () => {
           Sign Up
         </Link>
         <Link
-          href="/auth/login"
+          href="/auth/sign-in"
           className="gradient-bg inline-flex justify-center items-center text-mywhitetext w-40 px-4 py-3 rounded-xl font-medium text-base"
           onClick={() => setIsMenuOpen(false)}
         >
