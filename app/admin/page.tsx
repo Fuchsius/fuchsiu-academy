@@ -211,13 +211,13 @@ function StatCard({ title, value, icon, href }: StatCardProps) {
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const getStatusProps = () => {
     switch (status) {
-      case "COMPLETED":
+      case OrderStatus.COMPLETED:
         return { color: "bg-green-100 text-green-800", label: "Completed" };
-      case "PENDING":
+      case OrderStatus.PENDING:
         return { color: "bg-yellow-100 text-yellow-800", label: "Pending" };
-      case "PROCESSING":
+      case OrderStatus.PROCESSING:
         return { color: "bg-blue-100 text-blue-800", label: "Processing" };
-      case "CANCELLED":
+      case OrderStatus.CANCELLED:
         return { color: "bg-red-100 text-red-800", label: "Cancelled" };
       default:
         return { color: "bg-gray-100 text-gray-800", label: status };
