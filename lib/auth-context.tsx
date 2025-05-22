@@ -1,13 +1,15 @@
 "use client";
 
 import React, { createContext, useContext } from "react";
-import { useSession, signIn, signOut, SessionProvider } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
+
+type UserRole = "admin" | "student" | "instructor";
 
 type User = {
   id: string;
   fullName?: string;
   email: string;
-  role?: "student" | "instructor" | "admin";
+  role?: UserRole;
   name?: string;
 };
 
@@ -21,6 +23,7 @@ interface AuthContextType {
     password: string;
   }) => Promise<boolean>;
   logout: () => void;
+  isAdmin: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,15 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: session.user.email || "",
         fullName: session.user.name || session.user.email?.split("@")[0] || "",
         name: session.user.name || session.user.email?.split("@")[0] || "",
-        role: "student" as const,
+        role: ((session.user as any).role as UserRole) || "student",
       }
     : null;
-
   // Compatibility methods
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const result = await signIn("nodemailer", {
+      // Use credentials provider for password-based login
+      const result = await signIn("credentials", {
         email,
+        password,
         redirect: false,
       });
       return !result?.error;
@@ -63,9 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string;
   }): Promise<boolean> => {
     try {
-      // For email signup, we just call the email provider
-      // The user account will be created when they click the link
-      const result = await signIn("nodemailer", {
+      // For email signup, use the Email provider (previously nodemailer)
+      const result = await signIn("email", {
         email: userData.email,
         redirect: false,
       });
@@ -80,6 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut();
   };
 
+  const isAdmin = () => {
+    return user?.role === "admin";
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -88,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         signup,
         logout,
+        isAdmin,
       }}
     >
       {children}

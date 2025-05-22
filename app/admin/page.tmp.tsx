@@ -1,0 +1,227 @@
+"use server";
+
+import React from "react";
+import { getDashboardStats } from "../actions/dashboard";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MdPeople, MdAssignment, MdPayment } from "react-icons/md";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+
+// Type definitions
+interface Student {
+  id: string;
+  userId: string;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  _count: {
+    certificates: number;
+  };
+}
+
+interface Order {
+  id: string;
+  orderId: string;
+  amount: any; // Using any for Decimal type compatibility
+  status: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export default async function AdminDashboardPage() {
+  const stats = await getDashboardStats();
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight text-myprimary">
+        Admin Dashboard
+      </h1>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <StatCard
+          title="Total Students"
+          value={stats.studentCount.toString()}
+          icon={<MdPeople className="h-6 w-6" />}
+          href="/admin/students"
+        />
+        <StatCard
+          title="Pending Orders"
+          value={stats.pendingOrdersCount.toString()}
+          icon={<MdPayment className="h-6 w-6" />}
+          href="/admin/orders?status=PENDING"
+        />
+        <StatCard
+          title="Certificates Issued"
+          value={stats.certificateCount.toString()}
+          icon={<MdAssignment className="h-6 w-6" />}
+          href="/admin/certificates"
+        />
+      </div>
+
+      <div className="mt-8">
+        <Tabs defaultValue="recent-students">
+          <TabsList className="mb-4">
+            <TabsTrigger value="recent-students">Recent Students</TabsTrigger>
+            <TabsTrigger value="recent-orders">Recent Orders</TabsTrigger>
+          </TabsList>
+          <TabsContent value="recent-students">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recently Registered Students</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {stats.recentStudents.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Certificates</TableHead>
+                        <TableHead>Registered</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {stats.recentStudents.map((student: Student) => (
+                        <TableRow key={student.id}>
+                          <TableCell className="font-medium">
+                            <Link
+                              href={`/admin/students?search=${student.user.email}`}
+                              className="hover:text-myprimary"
+                            >
+                              {student.user.name}
+                            </Link>
+                          </TableCell>
+                          <TableCell>{student.user.email}</TableCell>
+                          <TableCell>{student._count.certificates}</TableCell>
+                          <TableCell>
+                            {new Date(student.createdAt).toLocaleDateString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <p className="text-gray-500">
+                    No students found. They will appear here once registered.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="recent-orders">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Orders</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {stats.recentOrders.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {stats.recentOrders.map((order: Order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium">
+                            <Link
+                              href={`/admin/orders?search=${order.orderId}`}
+                              className="hover:text-myprimary"
+                            >
+                              {order.orderId}
+                            </Link>
+                          </TableCell>
+                          <TableCell>{order.user.name}</TableCell>
+                          <TableCell>
+                            LKR{" "}
+                            {parseFloat(
+                              order.amount.toString()
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <OrderStatusBadge status={order.status} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <p className="text-gray-500">
+                    No orders found. They will appear here once created.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
+
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  href: string;
+}
+
+function StatCard({ title, value, icon, href }: StatCardProps) {
+  return (
+    <Link href={href}>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">{title}</p>
+              <p className="text-3xl font-bold text-myprimary">{value}</p>
+            </div>
+            <div className="p-2 rounded-full bg-mysecondary/10 text-mysecondary">
+              {icon}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function OrderStatusBadge({ status }: { status: string }) {
+  const getStatusProps = () => {
+    switch (status) {
+      case "COMPLETED":
+        return { color: "bg-green-100 text-green-800", label: "Completed" };
+      case "PENDING":
+        return { color: "bg-yellow-100 text-yellow-800", label: "Pending" };
+      case "PROCESSING":
+        return { color: "bg-blue-100 text-blue-800", label: "Processing" };
+      case "CANCELLED":
+        return { color: "bg-red-100 text-red-800", label: "Cancelled" };
+      default:
+        return { color: "bg-gray-100 text-gray-800", label: status };
+    }
+  };
+
+  const { color, label } = getStatusProps();
+
+  return <Badge className={color}>{label}</Badge>;
+}

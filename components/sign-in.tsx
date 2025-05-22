@@ -14,14 +14,13 @@ export function SignIn() {
     "email"
   );
   const [error, setError] = useState("");
-
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      const result = await signIn("nodemailer", {
+      const result = await signIn("email", {
         email,
         callbackUrl: "/",
         redirect: false,

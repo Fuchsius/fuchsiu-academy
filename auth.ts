@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/prisma";
-import Nodemailer from "next-auth/providers/nodemailer";
-import Google from "next-auth/providers/google";
-import Credentials from "next-auth/providers/credentials";
+import Email from "@auth/core/providers/nodemailer";
+import Google from "@auth/core/providers/google";
+import Credentials from "@auth/core/providers/credentials";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { type DefaultSession } from "next-auth";
@@ -13,11 +13,13 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
+      role?: string;
     } & DefaultSession["user"];
   }
 
   interface User {
     emailVerified?: Date;
+    role?: string;
   }
 }
 
@@ -31,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     // Email Sign-in (Magic Links)
-    Nodemailer({
+    Email({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
         port: Number(process.env.EMAIL_SERVER_PORT),
@@ -124,13 +126,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt", // Use JWT for Edge compatibility
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-
   callbacks: {
     async jwt({ token, user, account }) {
       // Initial sign in
       if (account && user) {
         // Add the user ID to the token for easy access
         token.id = user.id;
+
+        // Add the user role if available
+        if (user.role) {
+          token.role = user.role;
+        }
 
         // Store provider info if available
         if (account.provider) {
@@ -140,7 +146,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // For OAuth accounts, store additional info
         if (
           account.provider !== "credentials" &&
-          account.provider !== "nodemailer"
+          account.provider !== "email"
         ) {
           token.accessToken = account.access_token;
           token.refreshToken = account.refresh_token;
@@ -150,22 +156,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return token;
     },
-
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       // Add user id to session
       if (token && session.user) {
         session.user.id = token.sub as string;
+
+        // Add user role if available
+        if (token.role) {
+          session.user.role = token.role as string;
+        }
       }
 
       return session;
     },
-
     async signIn({ user, account }) {
       // Allow all sign-ins by default
       const isAllowedToSignIn = true;
 
-      // Auto-verify email for magic link users
-      if (account?.provider === "nodemailer") {
+      // Auto-verify email for email (magic link) users
+      if (account?.provider === "email") {
         try {
           await prisma.user.update({
             where: { id: user.id },
@@ -179,7 +188,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return isAllowedToSignIn;
     },
   },
-
   events: {
     async signIn({ user, account, isNewUser }) {
       if (account) {

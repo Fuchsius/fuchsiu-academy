@@ -1,24 +1,34 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "./auth";
 
 // This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
-  // This is a simplified middleware that doesn't use auth or session
-  // which avoids Edge runtime issues with Node.js modules
-
-  const isLoggedIn =
-    !!request.cookies.get("next-auth.session-token") ||
-    !!request.cookies.get("__Secure-next-auth.session-token");
+export async function middleware(request: NextRequest) {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
 
   // Define authenticated routes
   const authRoutes = ["/dashboard"];
+  const adminRoutes = ["/admin"];
+
   const isAuthRoute = authRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
 
+  const isAdminRoute = adminRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
   // If trying to access auth routes but not logged in
-  if (isAuthRoute && !isLoggedIn) {
+  if ((isAuthRoute || isAdminRoute) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+  } // Handle admin routes separately - check for admin role
+  if (isAdminRoute) {
+    // We need to check if user has admin role
+    // Since role might not be directly in the session, we can check
+    // whether the user is allowed to access admin routes here
+    // and the detailed role check can happen in the admin layout component
+    return NextResponse.next();
   }
 
   return NextResponse.next();
@@ -26,5 +36,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*"],
 };
