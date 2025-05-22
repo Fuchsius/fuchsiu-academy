@@ -120,17 +120,16 @@ export const Header = () => {
       </div>
     );
   };
-
   return (
-    <header
-      className={`sticky top-0 z-50 w-full ${
-        scrolled ? "bg-white/80 backdrop-blur-sm shadow-md" : "bg-transparent"
-      } transition-all duration-300`}
-    >
-      <div className="flex justify-between items-center py-6 container px-3 mx-auto">
+    <header className={`sticky top-0 z-50 w-full  transition-all duration-300`}>
+      <div
+        className={`flex justify-between items-center py-6 container px-3 mx-auto ${
+          scrolled ? "bg-white/80 backdrop-blur-sm shadow-md" : "bg-transparent"
+        }`}
+      >
         {/* Logo */}
         <Link href={"/"} className="z-50">
-          <div className="font-bold text-xl ">Fuchsius Academy</div>
+          <div className="font-bold text-xl">Fuchsius Academy</div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -173,36 +172,73 @@ export const Header = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 bg-white z-40 transition-transform duration-300 transform ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         } lg:hidden`}
+        onClick={() => setIsMenuOpen(false)}
+        aria-hidden="true"
+      ></div>
+
+      {/* Mobile Menu Panel */}
+      <div
+        className={`fixed inset-y-0 right-0 w-full max-w-sm bg-white z-50 shadow-xl transition-transform duration-300 ease-in-out transform ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        } lg:hidden overflow-y-auto`}
       >
-        <div className="flex flex-col items-center justify-center h-full space-y-8 pt-16">
-          {/* Mobile Navigation */}
-          <nav className="flex flex-col items-center space-y-6 mb-8">
-            <Link
-              href={"/"}
-              className="text-xl font-medium text-myprimary hover:text-mysecondary"
+        <div className="flex flex-col h-full">
+          {/* Mobile Menu Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="font-bold text-lg text-myprimary">Menu</div>
+            <button
               onClick={() => setIsMenuOpen(false)}
+              className="p-2 rounded-full hover:bg-gray-100"
+              aria-label="Close menu"
             >
-              Home
-            </Link>
-            {NAV_ITEMS.map((item) => (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          {/* Menu content */}
+          <div className="flex flex-col px-4 py-8 h-full">
+            {/* Mobile Navigation */}
+            <nav className="flex flex-col space-y-4 w-full">
               <Link
-                key={item.name}
-                href={item.href}
-                className="text-xl font-medium text-myprimary hover:text-mysecondary"
+                href={"/"}
+                className="text-lg font-medium text-myprimary hover:text-mysecondary py-2 border-b border-gray-100"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {item.name}
+                Home
               </Link>
-            ))}
-          </nav>
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-lg font-medium text-myprimary hover:text-mysecondary py-2 border-b border-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
 
-          {/* Mobile Action Buttons */}
-          {renderMobileActions()}
+            {/* Mobile Action Buttons */}
+            <div className="mt-auto pt-8">{renderMobileActions()}</div>
+          </div>
         </div>
       </div>
     </header>
