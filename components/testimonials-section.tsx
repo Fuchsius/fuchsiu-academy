@@ -4,11 +4,12 @@ import React from "react";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
 // Import required modules
-import { Navigation } from "swiper/modules";
+import { Navigation, Autoplay, Pagination } from "swiper/modules";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import "swiper/css/autoplay";
 
 interface TestimonialProps {
   quote: string;
@@ -61,9 +62,9 @@ const TestimonialsSection = () => {
       background-color: #333;
     }
     
-    /* Hide default navigation buttons since we''re using custom ones */
-    .testimonials-swiper .swiper-button-next:after, 
-    .testimonials-swiper .swiper-button-prev:after {
+    /* Hide default navigation buttons */
+    .testimonials-swiper .swiper-button-next, 
+    .testimonials-swiper .swiper-button-prev {
       display: none;
     }
   `;
@@ -112,7 +113,7 @@ const TestimonialsSection = () => {
         {customStyles}
       </style>
       <section
-        className="w-full py-16 md:py-24 relative overflow-hidden"
+        className="w-full py-16 md:py-20 relative overflow-hidden"
         id="testimonials"
       >
         <div className="container mx-auto px-3">
@@ -127,9 +128,9 @@ const TestimonialsSection = () => {
           </h2>
 
           {/* Testimonial Cards with Swiper */}
-          <div className="max-w-6xl mx-auto my-12 md:my-16">
+          <div className="max-w-6xl mx-auto mt-12 md:mt-16">
             <Swiper
-              modules={[Navigation]}
+              modules={[Navigation, Autoplay, Pagination]}
               spaceBetween={24}
               slidesPerView={1}
               navigation={{
@@ -137,6 +138,11 @@ const TestimonialsSection = () => {
                 prevEl: ".swiper-button-prev",
               }}
               pagination={{ clickable: true }}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
               breakpoints={{
                 // when window width is >= 640px (sm)
                 640: {
@@ -163,10 +169,10 @@ const TestimonialsSection = () => {
               ))}
             </Swiper>
 
-            {/* Custom Navigation Buttons */}
-            <div className="flex justify-center gap-4 mt-8">
+            {/* Custom Navigation Buttons (Commented out) */}
+            {/* <div className="flex justify-center gap-4 mt-8">
               <button
-                className=" w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
                 aria-label="Previous testimonials"
               >
                 <svg
@@ -183,7 +189,7 @@ const TestimonialsSection = () => {
                 </svg>
               </button>
               <button
-                className=" w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
                 aria-label="Next testimonials"
               >
                 <svg
@@ -199,7 +205,7 @@ const TestimonialsSection = () => {
                   />
                 </svg>
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
