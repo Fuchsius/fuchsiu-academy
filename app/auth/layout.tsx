@@ -11,7 +11,10 @@ export default function AuthLayout({
   return (
     <main className="min-h-screen bg-white">
       <Header />
-      {children}
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-5rem)] w-full">
+        {children}
+      </div>
+      {/* {children} */}
     </main>
   );
 }
