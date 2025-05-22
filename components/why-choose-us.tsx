@@ -35,7 +35,9 @@ const WhyChooseUs = () => {
     <section
       className="w-full bg-mysecondary py-16 md:py-24 relative overflow-hidden"
       id="why-us"
-    >      {/* Grid Background Pattern */}
+    >
+      {" "}
+      {/* Grid Background Pattern */}
       <div className="absolute w-full h-full inset-0 pointer-events-none z-10">
         <Image
           src="/assets/bggrid.png"
