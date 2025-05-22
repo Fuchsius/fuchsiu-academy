@@ -158,7 +158,7 @@ const TestimonialsSection = () => {
               className="testimonials-swiper"
             >
               {testimonials.map((testimonial, index) => (
-                <SwiperSlide key={index}>
+                <SwiperSlide className="pb-10" key={index}>
                   <TestimonialCard
                     quote={testimonial.quote}
                     name={testimonial.name}
