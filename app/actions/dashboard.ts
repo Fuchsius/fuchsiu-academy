@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
+import { OrderStatus } from "@prisma/client";
 
 // Function to check if user is admin
 async function checkAdmin() {
@@ -18,7 +19,6 @@ async function checkAdmin() {
 export async function getDashboardStats() {
   try {
     await checkAdmin();
-
     const [
       studentCount,
       pendingOrdersCount,
@@ -27,7 +27,7 @@ export async function getDashboardStats() {
       recentOrders,
     ] = await Promise.all([
       prisma.student.count(),
-      prisma.order.count({ where: { status: "PENDING" } }),
+      prisma.order.count({ where: { status: OrderStatus.PENDING } }),
       prisma.certificate.count(),
       // Recent students
       prisma.student.findMany({
