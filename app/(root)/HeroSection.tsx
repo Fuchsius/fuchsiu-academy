@@ -1,5 +1,6 @@
 import { FeatureCard } from "@/components/feature-card";
 import { StudentRating } from "@/components/student-rating";
+import Link from "next/link";
 import React from "react";
 
 const HeroSection = () => {
@@ -23,25 +24,27 @@ const HeroSection = () => {
 
         {/* CTA Button */}
         <div className="flex justify-center">
-          <button className="border cursor-pointer border-myprimary rounded-lg px-10 py-4 text-myprimary font-semibold w-48 flex items-center justify-center gap-2 hover:border-purple hover:font-bold transition-all duration-300">
-            Explore
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="rotate-45"
-            >
-              <path
-                d="M8 3L14 8L8 13M14 8L2 8"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+          <Link href={"#about-us"}>
+            <button className="border cursor-pointer border-myprimary rounded-lg px-10 py-4 text-myprimary font-semibold w-48 flex items-center justify-center gap-2 hover:border-purple hover:font-bold transition-all duration-300">
+              Explore
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="rotate-45"
+              >
+                <path
+                  d="M8 3L14 8L8 13M14 8L2 8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </Link>
         </div>
       </div>
 

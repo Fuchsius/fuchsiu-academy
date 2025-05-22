@@ -123,55 +123,58 @@ export const Header = () => {
   return (
     <header className={`sticky top-0 z-50 w-full  transition-all duration-300`}>
       <div
-        className={`flex justify-between items-center py-6 container px-3 mx-auto ${
+        className={`${
           scrolled ? "bg-white/80 backdrop-blur-sm shadow-md" : "bg-transparent"
         }`}
       >
-        {/* Logo */}
-        <Link href={"/"} className="z-50">
-          <div className="font-bold text-xl">Fuchsius Academy</div>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex space-x-8">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-sm font-medium text-center text-myprimary hover:text-mysecondary transition duration-200"
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Desktop Action Buttons */}
-        {renderDesktopActions()}
-
-        {/* Mobile Menu Button */}
-        <button
-          className="lg:hidden z-50 flex flex-col items-center justify-center w-8 h-8 space-y-1.5"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
+        <div
+          className={`flex justify-between items-center py-6 container px-3 mx-auto`}
         >
-          <span
-            className={`block w-6 h-0.5 bg-myprimary transition-all duration-300 ${
-              isMenuOpen ? "rotate-45 translate-y-2" : ""
-            }`}
-          ></span>
-          <span
-            className={`block w-6 h-0.5 bg-myprimary transition-all duration-300 ${
-              isMenuOpen ? "opacity-0" : "opacity-100"
-            }`}
-          ></span>
-          <span
-            className={`block w-6 h-0.5 bg-myprimary transition-all duration-300 ${
-              isMenuOpen ? "-rotate-45 -translate-y-2" : ""
-            }`}
-          ></span>
-        </button>
-      </div>
+          {/* Logo */}
+          <Link href={"/"} className="z-50">
+            <div className="font-bold text-xl">Fuchsius Academy</div>
+          </Link>
 
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex space-x-8">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm font-medium text-center text-myprimary hover:text-mysecondary transition duration-200"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop Action Buttons */}
+          {renderDesktopActions()}
+
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden z-50 flex flex-col items-center justify-center w-8 h-8 space-y-1.5"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            <span
+              className={`block w-6 h-0.5 bg-myprimary transition-all duration-300 ${
+                isMenuOpen ? "rotate-45 translate-y-2" : ""
+              }`}
+            ></span>
+            <span
+              className={`block w-6 h-0.5 bg-myprimary transition-all duration-300 ${
+                isMenuOpen ? "opacity-0" : "opacity-100"
+              }`}
+            ></span>
+            <span
+              className={`block w-6 h-0.5 bg-myprimary transition-all duration-300 ${
+                isMenuOpen ? "-rotate-45 -translate-y-2" : ""
+              }`}
+            ></span>
+          </button>
+        </div>
+      </div>
       {/* Mobile Menu Overlay */}
       <div
         className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 ${
