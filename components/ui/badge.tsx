@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "secondary" | "outline";
+  variant?: "default" | "secondary" | "outline" | "destructive"; // Added destructive variant
 }
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
@@ -15,6 +15,8 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
         variant === "secondary" &&
           "border-transparent bg-secondary text-secondary-foreground",
         variant === "outline" && "text-foreground",
+        variant === "destructive" && // Added style for destructive variant
+          "border-transparent bg-red-600 text-white",
         className
       )}
       {...props}

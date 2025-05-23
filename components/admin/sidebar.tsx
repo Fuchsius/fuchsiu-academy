@@ -36,6 +36,11 @@ export default function AdminSidebar({
       icon: <MdDashboard className="h-5 w-5" />,
     },
     {
+      href: `${basePath}/users`,
+      label: "Users",
+      icon: <MdPeople className="h-5 w-5" />,
+    },
+    {
       href: `${basePath}/students`,
       label: "Students",
       icon: <MdPeople className="h-5 w-5" />,

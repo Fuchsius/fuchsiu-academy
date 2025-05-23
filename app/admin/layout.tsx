@@ -3,8 +3,8 @@
 import React, { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
-import AdminSidebar from "@/components/admin/sidebar";
-import AdminHeader from "@/components/admin/header";
+// import AdminSidebar from "@/components/admin/sidebar";
+// import AdminHeader from "@/components/admin/header";
 import AdminDebugInfo from "@/components/admin/debug-info";
 
 export default function AdminLayout({
@@ -36,11 +36,11 @@ export default function AdminLayout({
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AdminHeader />
+        {/* <AdminHeader /> */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, ChangeEvent } from "react";
 import {
   MdSearch,
   MdFilterList,
@@ -10,15 +10,22 @@ import {
   MdDelete,
   MdUpload,
   MdClear,
-  MdMailOutline,
-  MdPhone,
-  MdBadge, // For certificates count
-  MdShoppingCart, // For orders count
+  MdBadge as MdCertificateBadge,
+  MdShoppingCart,
+  MdCheckCircle,
+  MdCancel,
+  MdMoreVert,
 } from "react-icons/md";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -31,6 +38,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -40,12 +49,26 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-// import { Pagination } from "@/components/ui/pagination"; // Assuming Pagination will be used later
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+// import { Label } from "@/components/ui/label";
+
+// Define student type
+interface Student {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  certificates: number;
+  orders: number;
+  lastActive: string;
+  joinedDate: string;
+  isConfirmed: boolean;
+}
 
 // Mock data for initial UI rendering
-const mockStudents = [
+const mockStudentsData: Student[] = [
   {
     id: "student-001",
     name: "Alice Wonderland",
@@ -55,6 +78,7 @@ const mockStudents = [
     orders: 1,
     lastActive: "2025-05-21T10:00:00Z",
     joinedDate: "2024-11-15T09:00:00Z",
+    isConfirmed: true,
   },
   {
     id: "student-002",
@@ -65,6 +89,7 @@ const mockStudents = [
     orders: 3,
     lastActive: "2025-05-23T14:30:00Z",
     joinedDate: "2025-01-10T11:00:00Z",
+    isConfirmed: false,
   },
   {
     id: "student-003",
@@ -75,54 +100,161 @@ const mockStudents = [
     orders: 0,
     lastActive: "2025-05-15T08:15:00Z",
     joinedDate: "2025-03-01T16:00:00Z",
+    isConfirmed: true,
+  },
+  {
+    id: "student-004",
+    name: "Diana Prince",
+    email: "diana@example.com",
+    phone: "+1-555-0104",
+    certificates: 3,
+    orders: 2,
+    lastActive: "2025-05-20T12:00:00Z",
+    joinedDate: "2024-10-01T09:00:00Z",
+    isConfirmed: false,
   },
 ];
 
 const StudentsPageV2 = () => {
+  const [students, setStudents] = useState<Student[]>(mockStudentsData);
   const [searchTerm, setSearchTerm] = useState("");
-  // const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "confirmed" | "unconfirmed"
+  >("all");
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-  const [isUploadCertificateOpen, setIsUploadCertificateOpen] = useState(false);
+  const [isIssueCertificateOpen, setIsIssueCertificateOpen] = useState(false);
   const [isDeleteStudentOpen, setIsDeleteStudentOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-  const filteredStudents = mockStudents.filter(
-    (student) =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (student.phone &&
-        student.phone.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const [newStudentData, setNewStudentData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
+
+  const [certificateData, setCertificateData] = useState({
+    title: "",
+    file: null as File | null,
+  });
+
+  const filteredStudents = useMemo(() => {
+    return students
+      .filter((student) => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          student.name.toLowerCase().includes(searchLower) ||
+          student.email.toLowerCase().includes(searchLower) ||
+          (student.phone && student.phone.toLowerCase().includes(searchLower))
+        );
+      })
+      .filter((student) => {
+        if (filterStatus === "all") return true;
+        return filterStatus === "confirmed"
+          ? student.isConfirmed
+          : !student.isConfirmed;
+      });
+  }, [students, searchTerm, filterStatus]);
 
   const handleClearSearch = () => setSearchTerm("");
 
-  const handleAddStudent = () => setIsAddStudentOpen(true);
-  const confirmAddStudent = () => {
-    console.log("Adding new student...");
-    // Add actual student creation logic
+  const handleAddStudentInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewStudentData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleOpenAddStudentDialog = () => {
+    setNewStudentData({ name: "", email: "", phone: "", password: "" });
+    setIsAddStudentOpen(true);
+  };
+
+  const confirmAddStudent = async () => {
+    console.log("Adding new student:", newStudentData);
+    // TODO: Implement actual API call to add student
+    const newId = `student-${String(Date.now()).slice(-3)}`;
+    const newStudentEntry: Student = {
+      ...newStudentData,
+      id: newId,
+      certificates: 0,
+      orders: 0,
+      lastActive: new Date().toISOString(),
+      joinedDate: new Date().toISOString(),
+      isConfirmed: false,
+    };
+    setStudents((prev) => [...prev, newStudentEntry]);
     setIsAddStudentOpen(false);
   };
 
-  const handleUploadCertificate = (student: any) => {
-    setSelectedStudent(student);
-    setIsUploadCertificateOpen(true);
+  const handleCertificateInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files } = e.target;
+    if (name === "file" && files && files.length > 0) {
+      setCertificateData((prev) => ({ ...prev, file: files[0] }));
+    } else {
+      setCertificateData((prev) => ({ ...prev, [name]: value }));
+    }
   };
-  const confirmUploadCertificate = () => {
-    console.log("Uploading certificate for", selectedStudent?.name);
-    // Add actual certificate upload logic
-    setIsUploadCertificateOpen(false);
+
+  const handleOpenIssueCertificateDialog = (student: Student) => {
+    if (!student.isConfirmed) {
+      alert("Please confirm the student before issuing a certificate.");
+      return;
+    }
+    setSelectedStudent(student);
+    setCertificateData({ title: "", file: null });
+    setIsIssueCertificateOpen(true);
+  };
+
+  const confirmIssueCertificate = async () => {
+    if (!selectedStudent || !certificateData.file || !certificateData.title) {
+      alert("Please fill in all certificate details and select a file.");
+      return;
+    }
+    console.log(
+      "Issuing certificate:",
+      certificateData.title,
+      "for",
+      selectedStudent.name,
+      "with file:",
+      certificateData.file.name
+    );
+    // TODO: Implement actual API call to issue certificate
+    setStudents((prevStudents) =>
+      prevStudents.map((s) =>
+        s.id === selectedStudent.id
+          ? { ...s, certificates: s.certificates + 1 }
+          : s
+      )
+    );
+    setIsIssueCertificateOpen(false);
     setSelectedStudent(null);
   };
 
-  const handleDeleteStudent = (student: any) => {
+  const handleDeleteStudent = (student: Student) => {
     setSelectedStudent(student);
     setIsDeleteStudentOpen(true);
   };
-  const confirmDeleteStudent = () => {
-    console.log("Deleting student", selectedStudent?.name);
-    // Add actual student deletion logic
+
+  const confirmDeleteStudent = async () => {
+    if (!selectedStudent) return;
+    console.log("Deleting student", selectedStudent.name);
+    // TODO: Implement actual API call to delete student
+    setStudents((prev) => prev.filter((s) => s.id !== selectedStudent.id));
     setIsDeleteStudentOpen(false);
     setSelectedStudent(null);
+  };
+
+  const handleToggleConfirmation = async (student: Student) => {
+    console.log(
+      `${student.isConfirmed ? "Unconfirming" : "Confirming"} student: ${
+        student.name
+      }`
+    );
+    // TODO: Implement actual API call to update student confirmation status
+    setStudents((prevStudents) =>
+      prevStudents.map((s) =>
+        s.id === student.id ? { ...s, isConfirmed: !s.isConfirmed } : s
+      )
+    );
   };
 
   return (
@@ -131,7 +263,10 @@ const StudentsPageV2 = () => {
         <h1 className="text-2xl font-semibold tracking-tight text-myprimary">
           Manage Students
         </h1>
-        <Button onClick={handleAddStudent} className="flex items-center gap-2">
+        <Button
+          onClick={handleOpenAddStudentDialog}
+          className="flex items-center gap-2"
+        >
           <MdAdd className="h-5 w-5" /> Add New Student
         </Button>
       </div>
@@ -139,6 +274,9 @@ const StudentsPageV2 = () => {
       <Card>
         <CardHeader>
           <CardTitle>All Students</CardTitle>
+          <CardDescription>
+            View, manage, and confirm student accounts.
+          </CardDescription>
           <div className="mt-4 flex flex-col md:flex-row md:items-center gap-2">
             <div className="relative flex-grow">
               <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -146,8 +284,10 @@ const StudentsPageV2 = () => {
                 type="search"
                 placeholder="Search students (name, email, phone)..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full"
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setSearchTerm(e.target.value)
+                }
+                className="pl-10 w-full md:w-auto md:min-w-[300px]"
               />
               {searchTerm && (
                 <Button
@@ -160,9 +300,30 @@ const StudentsPageV2 = () => {
                 </Button>
               )}
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
-              <MdFilterList className="h-5 w-5" /> Filters
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <MdFilterList className="h-5 w-5" />
+                  Filter:{" "}
+                  {filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setFilterStatus("all")}>
+                  All
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterStatus("confirmed")}>
+                  Confirmed
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setFilterStatus("unconfirmed")}
+                >
+                  Unconfirmed
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="outline" className="flex items-center gap-2">
               <MdDownload className="h-5 w-5" /> Export All
             </Button>
@@ -176,6 +337,7 @@ const StudentsPageV2 = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
                   <TableHead className="text-center">Certificates</TableHead>
                   <TableHead className="text-center">Orders</TableHead>
                   <TableHead>Joined On</TableHead>
@@ -191,11 +353,27 @@ const StudentsPageV2 = () => {
                     <TableCell>{student.email}</TableCell>
                     <TableCell>{student.phone || "N/A"}</TableCell>
                     <TableCell className="text-center">
+                      <Badge
+                        variant={
+                          student.isConfirmed ? "default" : "destructive"
+                        }
+                        className="cursor-pointer"
+                        onClick={() => handleToggleConfirmation(student)}
+                      >
+                        {student.isConfirmed ? (
+                          <MdCheckCircle className="mr-1 h-4 w-4" />
+                        ) : (
+                          <MdCancel className="mr-1 h-4 w-4" />
+                        )}
+                        {student.isConfirmed ? "Confirmed" : "Unconfirmed"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
                       <Link
                         href={`/admin-v2/certificates?studentId=${student.id}`}
                         className="hover:underline flex items-center justify-center"
                       >
-                        <MdBadge className="mr-1 h-4 w-4" />{" "}
+                        <MdCertificateBadge className="mr-1 h-4 w-4" />
                         {student.certificates}
                       </Link>
                     </TableCell>
@@ -204,7 +382,7 @@ const StudentsPageV2 = () => {
                         href={`/admin-v2/orders?studentId=${student.id}`}
                         className="hover:underline flex items-center justify-center"
                       >
-                        <MdShoppingCart className="mr-1 h-4 w-4" />{" "}
+                        <MdShoppingCart className="mr-1 h-4 w-4" />
                         {student.orders}
                       </Link>
                     </TableCell>
@@ -215,7 +393,7 @@ const StudentsPageV2 = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
-                            <MdEdit className="h-5 w-5" />
+                            <MdMoreVert className="h-5 w-5" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -224,16 +402,32 @@ const StudentsPageV2 = () => {
                               href={`/admin-v2/students/edit/${student.id}`}
                               className="flex items-center gap-2"
                             >
-                              <MdEdit className="h-4 w-4" /> Edit Student
+                              <MdEdit className="h-4 w-4" /> Edit Details
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleUploadCertificate(student)}
+                            onClick={() => handleToggleConfirmation(student)}
+                            className="flex items-center gap-2"
+                          >
+                            {student.isConfirmed ? (
+                              <MdCancel className="h-4 w-4" />
+                            ) : (
+                              <MdCheckCircle className="h-4 w-4" />
+                            )}
+                            {student.isConfirmed
+                              ? "Mark as Unconfirmed"
+                              : "Mark as Confirmed"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleOpenIssueCertificateDialog(student)
+                            }
+                            disabled={!student.isConfirmed}
                             className="flex items-center gap-2"
                           >
                             <MdUpload className="h-4 w-4" /> Issue Certificate
                           </DropdownMenuItem>
-                          {/* <DropdownMenuSeparator /> */}
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleDeleteStudent(student)}
                             className="flex items-center gap-2 text-red-600 hover:!text-red-600"
@@ -254,7 +448,7 @@ const StudentsPageV2 = () => {
               </p>
             </div>
           )}
-          {/* Pagination would go here */}
+          {/* TODO: Pagination would go here */}
         </CardContent>
       </Card>
 
@@ -264,14 +458,65 @@ const StudentsPageV2 = () => {
           <DialogHeader>
             <DialogTitle>Add New Student</DialogTitle>
             <DialogDescription>
-              Fill in the details for the new student.
+              Fill in the details for the new student. Click save when you're
+              done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Form fields for adding student */}
-            <p className="text-sm text-muted-foreground">
-              (Form fields for Name, Email, Phone, Password, etc. will be here)
-            </p>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                value={newStudentData.name}
+                onChange={handleAddStudentInputChange}
+                className="col-span-3"
+                placeholder="Student's full name"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={newStudentData.email}
+                onChange={handleAddStudentInputChange}
+                className="col-span-3"
+                placeholder="student@example.com"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phone" className="text-right">
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={newStudentData.phone}
+                onChange={handleAddStudentInputChange}
+                className="col-span-3"
+                placeholder="(Optional)"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">
+                Password
+              </Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={newStudentData.password}
+                onChange={handleAddStudentInputChange}
+                className="col-span-3"
+                placeholder="Create a strong password"
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -285,10 +530,10 @@ const StudentsPageV2 = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Upload Certificate Dialog */}
+      {/* Issue Certificate Dialog */}
       <Dialog
-        open={isUploadCertificateOpen}
-        onOpenChange={setIsUploadCertificateOpen}
+        open={isIssueCertificateOpen}
+        onOpenChange={setIsIssueCertificateOpen}
       >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -296,26 +541,53 @@ const StudentsPageV2 = () => {
               Issue Certificate to {selectedStudent?.name}
             </DialogTitle>
             <DialogDescription>
-              Select certificate details to issue.
+              Fill in the certificate details and upload the file.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Form fields for issuing certificate */}
-            <p className="text-sm text-muted-foreground">
-              (Form fields for Certificate Title, Issue Date, Template, etc.
-              will be here)
-            </p>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="certificateTitle" className="text-right">
+                Title
+              </Label>
+              <Input
+                id="certificateTitle"
+                name="title"
+                value={certificateData.title}
+                onChange={handleCertificateInputChange}
+                className="col-span-3"
+                placeholder="e.g., Certificate of Completion"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="certificateFile" className="text-right">
+                File
+              </Label>
+              <Input
+                id="certificateFile"
+                name="file"
+                type="file"
+                onChange={handleCertificateInputChange}
+                className="col-span-3"
+                accept=".pdf,.jpg,.jpeg,.png"
+              />
+            </div>
+            {certificateData.file && (
+              <div className="col-span-4 text-sm text-muted-foreground">
+                Selected file: {certificateData.file.name}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsUploadCertificateOpen(false)}
+              onClick={() => {
+                setIsIssueCertificateOpen(false);
+                setSelectedStudent(null);
+              }}
             >
               Cancel
             </Button>
-            <Button onClick={confirmUploadCertificate}>
-              Issue Certificate
-            </Button>
+            <Button onClick={confirmIssueCertificate}>Issue Certificate</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -333,7 +605,10 @@ const StudentsPageV2 = () => {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsDeleteStudentOpen(false)}
+              onClick={() => {
+                setIsDeleteStudentOpen(false);
+                setSelectedStudent(null);
+              }}
             >
               Cancel
             </Button>

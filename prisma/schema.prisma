@@ -40,6 +40,7 @@ model Student {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   phone        String?
   address      String?
+  isConfirmed  Boolean       @default(false) // Added for admin confirmation
   certificates Certificate[]
 
   createdAt DateTime @default(now())
