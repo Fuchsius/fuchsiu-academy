@@ -51,31 +51,26 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Pagination } from "@/components/ui/pagination";
-import {
-  createStudent,
-  deleteStudent,
-  getStudents,
-} from "@/app/actions/students";
+import { createStudent, deleteStudent, getStudents } from "@/app/actions/students";
 
 // Define student type based on Prisma model
 interface Student {
   id: string;
   user: {
     id: string;
-    name: string | null;
-    email: string | null;
+    name: string;
+    email: string;
     image: string | null;
   };
   phone: string | null;
   address: string | null;
-  createdAt: Date;
+  createdAt: string;
   _count: {
     certificates: number;
   };
   certificates: {
     id: string;
   }[];
-  isConfirmed: boolean;
 }
 
 interface StudentDisplayData {
@@ -99,17 +94,14 @@ interface PaginationMeta {
 const StudentsPageV2 = () => {
   const [students, setStudents] = useState<StudentDisplayData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<
-    "all" | "with-certificates" | "without-certificates"
-  >("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "with-certificates" | "without-certificates">("all");
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isIssueCertificateOpen, setIsIssueCertificateOpen] = useState(false);
   const [isDeleteStudentOpen, setIsDeleteStudentOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] =
-    useState<StudentDisplayData | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<StudentDisplayData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  
   // Pagination state
   const [paginationMeta, setPaginationMeta] = useState<PaginationMeta>({
     currentPage: 1,
@@ -139,18 +131,18 @@ const StudentsPageV2 = () => {
         limit: paginationMeta.limit,
         search: searchTerm,
       });
-
+      
       // Transform data to display format
-      const displayData = result.students.map((student) => ({
+      const displayData = result.students.map((student: Student) => ({
         id: student.id,
         userId: student.user.id,
         name: student.user.name || "Unknown",
         email: student.user.email || "No email",
         phone: student.phone,
         certificates: student._count.certificates,
-        joinedDate: student.createdAt.toString(),
+        joinedDate: student.createdAt,
       }));
-
+      
       setStudents(displayData);
       setPaginationMeta({
         currentPage: result.meta.currentPage,
@@ -185,11 +177,11 @@ const StudentsPageV2 = () => {
 
   const handleClearSearch = () => {
     setSearchTerm("");
-    setPaginationMeta((prev) => ({ ...prev, currentPage: 1 }));
+    setPaginationMeta(prev => ({ ...prev, currentPage: 1 }));
   };
 
   const handlePageChange = (page: number) => {
-    setPaginationMeta((prev) => ({ ...prev, currentPage: page }));
+    setPaginationMeta(prev => ({ ...prev, currentPage: page }));
   };
 
   const handleAddStudentInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -211,9 +203,9 @@ const StudentsPageV2 = () => {
       formData.append("email", newStudentData.email);
       formData.append("phone", newStudentData.phone || "");
       formData.append("address", newStudentData.address || "");
-
+      
       await createStudent(formData);
-
+      
       // Refetch the students to show the newly created one
       fetchStudents();
       setIsAddStudentOpen(false);
@@ -245,7 +237,7 @@ const StudentsPageV2 = () => {
       alert("Please fill in all certificate details and select a file.");
       return;
     }
-
+    
     setIsLoading(true);
     try {
       // Will implement certificate creation functionality in a separate PR
@@ -257,7 +249,7 @@ const StudentsPageV2 = () => {
         "with file:",
         certificateData.file.name
       );
-
+      
       // Refetch students to update certificate count
       setTimeout(() => {
         fetchStudents();
@@ -279,7 +271,7 @@ const StudentsPageV2 = () => {
 
   const confirmDeleteStudent = async () => {
     if (!selectedStudent) return;
-
+    
     setIsLoading(true);
     try {
       await deleteStudent(selectedStudent.id);
@@ -312,7 +304,9 @@ const StudentsPageV2 = () => {
       <Card>
         <CardHeader>
           <CardTitle>All Students</CardTitle>
-          <CardDescription>View and manage student accounts.</CardDescription>
+          <CardDescription>
+            View and manage student accounts.
+          </CardDescription>
           <div className="mt-4 flex flex-col md:flex-row md:items-center gap-2">
             <div className="relative flex-grow">
               <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -340,18 +334,14 @@ const StudentsPageV2 = () => {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  disabled={isLoading}
-                >
+                <Button variant="outline" className="flex items-center gap-2" disabled={isLoading}>
                   <MdFilterList className="h-5 w-5" />
                   Filter:{" "}
-                  {filterStatus === "all"
-                    ? "All"
-                    : filterStatus === "with-certificates"
-                    ? "With Certificates"
-                    : "Without Certificates"}
+                  {filterStatus === "all" 
+                    ? "All" 
+                    : filterStatus === "with-certificates" 
+                      ? "With Certificates" 
+                      : "Without Certificates"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -360,9 +350,7 @@ const StudentsPageV2 = () => {
                 <DropdownMenuItem onClick={() => setFilterStatus("all")}>
                   All
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setFilterStatus("with-certificates")}
-                >
+                <DropdownMenuItem onClick={() => setFilterStatus("with-certificates")}>
                   With Certificates
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -372,8 +360,8 @@ const StudentsPageV2 = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button
-              variant="outline"
+            <Button 
+              variant="outline" 
               className="flex items-center gap-2"
               disabled={isLoading || filteredStudents.length === 0}
             >
@@ -389,9 +377,9 @@ const StudentsPageV2 = () => {
           ) : error ? (
             <div className="text-center py-10 text-red-500">
               <p>{error}</p>
-              <Button
-                onClick={fetchStudents}
-                variant="outline"
+              <Button 
+                onClick={fetchStudents} 
+                variant="outline" 
                 className="mt-4"
               >
                 Retry
@@ -435,15 +423,13 @@ const StudentsPageV2 = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              handleOpenIssueCertificateDialog(student)
-                            }
+                            onClick={() => handleOpenIssueCertificateDialog(student)}
                             className="flex items-center gap-1"
                           >
                             <MdCertificateBadge className="h-4 w-4" />
                             Add Certificate
                           </Button>
-
+                          
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon">
@@ -460,13 +446,10 @@ const StudentsPageV2 = () => {
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleOpenIssueCertificateDialog(student)
-                                }
+                                onClick={() => handleOpenIssueCertificateDialog(student)}
                                 className="flex items-center gap-2"
                               >
-                                <MdUpload className="h-4 w-4" /> Issue
-                                Certificate
+                                <MdUpload className="h-4 w-4" /> Issue Certificate
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -483,9 +466,9 @@ const StudentsPageV2 = () => {
                   ))}
                 </TableBody>
               </Table>
-
+              
               <div className="mt-6">
-                <Pagination
+                <Pagination 
                   currentPage={paginationMeta.currentPage}
                   totalPages={paginationMeta.totalPages}
                   onPageChange={handlePageChange}
@@ -669,11 +652,7 @@ const StudentsPageV2 = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDeleteStudent}
-              disabled={isLoading}
-            >
+            <Button variant="destructive" onClick={confirmDeleteStudent} disabled={isLoading}>
               {isLoading ? "Deleting..." : "Delete Student"}
             </Button>
           </DialogFooter>

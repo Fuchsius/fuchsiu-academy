@@ -9,6 +9,7 @@ interface PaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   siblingCount?: number;
+  isLoading?: boolean;
 }
 
 export function Pagination({
@@ -16,6 +17,7 @@ export function Pagination({
   totalPages,
   onPageChange,
   siblingCount = 1,
+  isLoading = false,
 }: PaginationProps) {
   // Generate page numbers to show
   const getPageNumbers = () => {
@@ -65,12 +67,13 @@ export function Pagination({
     <nav className="flex justify-center">
       <ul className="flex items-center gap-1">
         <li>
+          {" "}
           <button
             onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || isLoading}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-md",
-              currentPage === 1
+              currentPage === 1 || isLoading
                 ? "text-gray-300 cursor-not-allowed"
                 : "text-gray-700 hover:bg-gray-100"
             )}
@@ -89,11 +92,13 @@ export function Pagination({
             ) : (
               <button
                 onClick={() => onPageChange(page as number)}
+                disabled={isLoading}
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-md",
                   currentPage === page
                     ? "bg-mysecondary text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-100",
+                  isLoading && "opacity-50 cursor-not-allowed"
                 )}
                 aria-label={`Go to page ${page}`}
               >
@@ -104,12 +109,13 @@ export function Pagination({
         ))}
 
         <li>
+          {" "}
           <button
             onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || isLoading}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-md",
-              currentPage === totalPages
+              currentPage === totalPages || isLoading
                 ? "text-gray-300 cursor-not-allowed"
                 : "text-gray-700 hover:bg-gray-100"
             )}

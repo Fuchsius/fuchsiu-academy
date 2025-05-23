@@ -35,9 +35,9 @@ export async function getStudents({
     const whereConditions = search
       ? {
           OR: [
-            { user: { name: { contains: search, mode: "insensitive" } } },
-            { user: { email: { contains: search, mode: "insensitive" } } },
-            { phone: { contains: search, mode: "insensitive" } },
+            { user: { name: { contains: search } } },
+            { user: { email: { contains: search } } },
+            { phone: { contains: search } },
           ],
         }
       : {};
