@@ -6,21 +6,25 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
 
 export default function AuthSuccessPage() {
-  const { user } = useAuth();
+  const { user, isAdmin, isStudent } = useAuth();
   const router = useRouter();
   const [countdown, setCountdown] = useState(3);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    // Redirect to home if not authenticated
-    if (!user) {
-      router.push("/auth/sign-in");
-      return;
-    }
+    // Redirect to sign-in if not authenticated
+    // if (!user) {
+    //   router.push("/auth/sign-in");
+    //   return;
+    // }
+
+    setIsLoading(false);
 
     // Determine redirect path based on user role
     const getRedirectPath = () => {
-      if (user.role?.toUpperCase() === "ADMIN") {
+      if (isAdmin()) {
         return "/admin";
-      } else if (user.role?.toUpperCase() === "STUDENT") {
+      } else if (isStudent()) {
         return "/student";
       } else {
         return "/";
@@ -42,9 +46,10 @@ export default function AuthSuccessPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [user, router]);
+  }, [user, router, isAdmin, isStudent]);
 
-  if (!user) {
+  // Show loading spinner while checking authentication
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner size="lg" />
@@ -80,12 +85,12 @@ export default function AuthSuccessPage() {
           You have successfully{" "}
           {user.id === "123" ? "created an account" : "logged in"} with Fuchsius
           Academy.
-        </p>{" "}
+        </p>
         <p className="text-mysecondary font-medium">
           Redirecting to{" "}
-          {user.role?.toUpperCase() === "ADMIN"
+          {isAdmin()
             ? "admin panel"
-            : user.role?.toUpperCase() === "STUDENT"
+            : isStudent()
             ? "student dashboard"
             : "home page"}{" "}
           in {countdown} seconds...
