@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/prisma";
-import Email from "@auth/core/providers/nodemailer";
+import Nodemailer from "next-auth/providers/nodemailer";
 import Google from "@auth/core/providers/google";
 import Credentials from "@auth/core/providers/credentials";
 import bcrypt from "bcrypt";
@@ -33,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     // Email Sign-in (Magic Links)
-    Email({
+    Nodemailer({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
         port: Number(process.env.EMAIL_SERVER_PORT),
