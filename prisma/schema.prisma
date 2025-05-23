@@ -16,6 +16,7 @@ model User {
   image          String?
   password       String? // Added for credentials authentication
   role           UserRole        @default(STUDENT)
+  isBlocked      Boolean         @default(false) // Added for blocking users
   accounts       Account[]
   sessions       Session[]
   // Optional for WebAuthn support

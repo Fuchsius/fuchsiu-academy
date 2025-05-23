@@ -243,11 +243,96 @@ const DropdownMenuSeparator = React.forwardRef<
 ));
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 
+// New Sub Components
+const DropdownMenuSub = ({ children }: DropdownMenuProps) => {
+  // For now, this component will act as a simple wrapper.
+  // In a more complex setup, it might provide context for its children.
+  return <div className="relative group">{children}</div>; // Added group for potential styling hooks
+};
+DropdownMenuSub.displayName = "DropdownMenuSub";
+
+const DropdownMenuSubTrigger = React.forwardRef<
+  HTMLButtonElement,
+  DropdownMenuTriggerProps // Can reuse existing TriggerProps
+>(({ className, children, ...props }, ref) => {
+  // This is a simplified version. A full implementation might need context
+  // to control the parent and sub-menu states.
+  const [open, setOpen] = React.useState(false); // Basic open state for sub-trigger
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); // Prevent closing parent menus immediately
+    setOpen(!open);
+    // Potentially communicate with parent/context here
+    if (props.onClick) {
+      props.onClick(e);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      ref={ref}
+      data-state={open ? "open" : "closed"} // For styling based on state
+      className={cn(
+        "flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[state=open]:bg-gray-100 hover:bg-gray-100",
+        className
+      )}
+      onClick={handleClick} // Use the new handleClick
+      {...props}
+    >
+      {children}
+      <span className="ml-auto pl-2 text-xs">▶</span>
+    </button>
+  );
+});
+DropdownMenuSubTrigger.displayName = "DropdownMenuSubTrigger";
+
+const DropdownMenuSubContent = React.forwardRef<
+  HTMLDivElement,
+  DropdownMenuContentProps // Can reuse existing ContentProps
+>(({ className, children, align = "start", sideOffset = 2, ...props }, ref) => {
+  // This is a simplified version. A full implementation would handle positioning
+  // relative to the SubTrigger and manage its own open/close state, possibly via context.
+  // It should only be visible when its SubTrigger is active/open.
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "absolute top-0 z-50 min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-lg",
+        "data-[state=closed]:hidden data-[state=open]:block", // Controlled by parent SubTrigger's state
+        align === "start" && "left-full", // Position to the right by default
+        align === "end" && "right-full", // Or to the left
+        className
+      )}
+      style={{
+        // Adjust based on sideOffset and alignment
+        // This is a very basic positioning, might need improvement
+        ...(align === "start" && { marginLeft: sideOffset }),
+        ...(align === "end" && { marginRight: sideOffset }),
+        marginTop: -(sideOffset + 30), // Approximate adjustment to align with trigger
+      }}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+});
+DropdownMenuSubContent.displayName = "DropdownMenuSubContent";
+
+const DropdownMenuPortal = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>; // Simplified for now
+};
+DropdownMenuPortal.displayName = "DropdownMenuPortal";
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel, // Added export
-  DropdownMenuSeparator, // Added export
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 };
