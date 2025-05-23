@@ -38,7 +38,13 @@ const navItems = [
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({
+  isMenuOpen,
+  onMenuToggle,
+}: {
+  isMenuOpen: boolean;
+  onMenuToggle: any;
+}) {
   const pathname = usePathname();
   const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -46,28 +52,28 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Mobile Menu Button */}
-      <button
-        type="button"
-        className="fixed top-4 left-4 z-50 md:hidden flex items-center justify-center rounded-md bg-mysecondary p-2 text-white"
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-      >
-        {mobileMenuOpen ? (
-          <MdClose className="h-6 w-6" />
-        ) : (
-          <MdMenu className="h-6 w-6" />
-        )}
-      </button>
 
       {/* Sidebar for larger screens */}
       <div
         className={cn(
-          "w-64 h-screen bg-mysecondary text-white fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out z-40",
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
+          "w-64 h-screen bg-mysecondary absolute md:static text-white inset-y-0 left-0 transform transition-transform duration-300 ease-in-out z-40",
+          isMenuOpen ? "translate-x-0" : "-translate-x-full absolute",
           "md:translate-x-0"
         )}
       >
         {/* Sidebar Header */}
         <div className="p-6">
+          <button
+            type="button"
+            className=" md:hidden flex items-center justify-center rounded-md bg-mysecondary p-2 text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <MdClose className="h-6 w-6" />
+            ) : (
+              <MdMenu className="h-6 w-6" />
+            )}
+          </button>
           <Link href="/admin" className="flex items-center space-x-2">
             <span className="text-xl font-bold">Fuchsius Academy</span>
           </Link>

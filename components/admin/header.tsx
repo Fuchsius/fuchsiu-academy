@@ -2,13 +2,32 @@
 
 import { useAuth } from "@/lib/auth-context";
 import React from "react";
-import { MdNotifications } from "react-icons/md";
+import { MdClose, MdMenu, MdNotifications } from "react-icons/md";
 
-export default function AdminHeader() {
+export default function AdminHeader({
+  isMenuOpen,
+  onMenuToggle,
+}: {
+  isMenuOpen: boolean;
+  onMenuToggle: any;
+}) {
   const { user } = useAuth();
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
+      <button
+        type="button"
+        className="flex md:hidden items-center justify-center rounded-md bg-mysecondary p-2 text-white mr-5"
+        onClick={() => {
+          onMenuToggle();
+        }}
+      >
+        {isMenuOpen ? (
+          <MdClose className="h-6 w-6" />
+        ) : (
+          <MdMenu className="h-6 w-6" />
+        )}
+      </button>
       <div className="flex flex-1 justify-start md:justify-end">
         <h1 className="text-xl font-semibold text-myprimary md:hidden">
           Admin Panel

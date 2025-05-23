@@ -54,13 +54,38 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
     // Find the Tabs parent to get the default value
     React.useEffect(() => {
       if (buttonRef.current) {
-        // Find closest parent with data-state
-        const closestTabsEl = buttonRef.current.closest("[data-state]");
-        if (closestTabsEl) {
-          setActiveTab(closestTabsEl.getAttribute("data-state"));
+        const tabsContainer = buttonRef.current.closest("[data-default-value]");
+        if (tabsContainer) {
+          const defaultValueFromParent =
+            tabsContainer.getAttribute("data-default-value");
+          if (defaultValueFromParent === value) {
+            // `value` is the prop of this TabsTrigger
+            setActiveTab(value); // Set this trigger's internal state to active
+
+            // Ensure the corresponding TabsContent is displayed.
+            const contentElement = document.querySelector(
+              `[data-content="${value}"]`
+            );
+            if (contentElement) {
+              // Ensure other content elements (within the same tabs group) are hidden
+              const allContentElements =
+                tabsContainer.querySelectorAll("[data-content]");
+              allContentElements.forEach((el) => {
+                if (el.getAttribute("data-content") !== value) {
+                  el.setAttribute("data-state", "inactive");
+                  el.classList.add("hidden");
+                }
+              });
+
+              // Activate and show the target content element
+              contentElement.setAttribute("data-state", "active");
+              contentElement.classList.remove("hidden");
+            }
+          }
         }
       }
-    }, []);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run once on mount to set initial state
 
     const isActive = activeTab === value;
 
