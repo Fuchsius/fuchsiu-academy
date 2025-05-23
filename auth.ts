@@ -80,9 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          const { email, password } = parsedCredentials.data;
-
-          // Look up user in database
+          const { email, password } = parsedCredentials.data; // Look up user in database
           const user = await prisma.user.findUnique({
             where: { email },
           });
@@ -105,6 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: user.email,
             name: user.name,
             image: user.image,
+            role: user.role,
           };
         } catch (error) {
           console.error("Authorization error:", error);
@@ -130,12 +129,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account }) {
       // Initial sign in
       if (account && user) {
+        console.log(
+          "JWT callback - user data:",
+          JSON.stringify({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          })
+        );
+
         // Add the user ID to the token for easy access
         token.id = user.id;
 
         // Add the user role if available
         if (user.role) {
           token.role = user.role;
+          console.log(`Setting role in token: ${user.role}`);
         }
 
         // Store provider info if available
@@ -157,6 +166,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token, user }) {
+      console.log(
+        "Session callback - token data:",
+        JSON.stringify({
+          sub: token.sub,
+          role: token.role,
+        })
+      );
+
       // Add user id to session
       if (token && session.user) {
         session.user.id = token.sub as string;
@@ -164,8 +181,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // Add user role if available
         if (token.role) {
           session.user.role = token.role as string;
+          console.log(`Setting role in session: ${token.role}`);
         }
       }
+
+      console.log(
+        "Session after modification:",
+        JSON.stringify({
+          userId: session.user?.id,
+          userRole: session.user?.role,
+        })
+      );
 
       return session;
     },

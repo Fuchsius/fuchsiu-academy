@@ -6,10 +6,20 @@ import { auth } from "./auth";
 export async function middleware(request: NextRequest) {
   const session = await auth();
   const isLoggedIn = !!session?.user;
-  const isAdmin = session?.user?.role === "ADMIN";
+  const userRole = session?.user?.role;
+  const isAdmin = userRole?.toUpperCase() === "ADMIN";
+
+  console.log("Middleware - User Session:", {
+    isLoggedIn,
+    userId: session?.user?.id,
+    userEmail: session?.user?.email,
+    userRole,
+    isAdmin,
+    path: request.nextUrl.pathname,
+  });
 
   // Define authenticated routes
-  const authRoutes = ["/dashboard"];
+  const authRoutes = ["/dashboard", "/student"];
   const adminRoutes = ["/admin"];
 
   const isAuthRoute = authRoutes.some((route) =>

@@ -72,7 +72,7 @@ export default function LoginPage() {
       try {
         const success = await login(formData.email, formData.password);
         if (success) {
-          router.push("/auth/success"); // Redirect to success page
+          router.push("/auth/success"); // Redirect to success page which will handle role-based routing
         } else {
           setErrors({
             ...errors,
@@ -89,7 +89,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="flex w-full flex-col md:flex-row">
       {/* Left side - Form */}
       <div className="w-full md:w-1/2 p-6 md:p-10 lg:p-16 flex items-center justify-center">
         <div className="w-full max-w-md">
@@ -203,7 +203,7 @@ export default function LoginPage() {
             <p className="text-center mt-6 text-gray-600">
               Don&apos;t have an account?{" "}
               <Link
-                href="/auth/signup"
+                href="/auth/sign-up"
                 className="text-mysecondary hover:underline"
               >
                 Sign up

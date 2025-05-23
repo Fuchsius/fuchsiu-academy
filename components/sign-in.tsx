@@ -82,16 +82,6 @@ export function SignIn() {
       <div className="flex border-b">
         <button
           className={`pb-2 px-4 ${
-            authMethod === "email"
-              ? "border-b-2 border-purple-600 text-purple-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setAuthMethod("email")}
-        >
-          Email Link
-        </button>
-        <button
-          className={`pb-2 px-4 ${
             authMethod === "credentials"
               ? "border-b-2 border-purple-600 text-purple-600"
               : "text-gray-500"
@@ -99,6 +89,16 @@ export function SignIn() {
           onClick={() => setAuthMethod("credentials")}
         >
           Password
+        </button>
+        <button
+          className={`pb-2 px-4 ${
+            authMethod === "email"
+              ? "border-b-2 border-purple-600 text-purple-600"
+              : "text-gray-500"
+          }`}
+          onClick={() => setAuthMethod("email")}
+        >
+          Email Link
         </button>
       </div>
 
@@ -181,7 +181,10 @@ export function SignIn() {
       <div className="text-center">
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link href="/auth/signup" className="text-purple-600 hover:underline">
+          <Link
+            href="/auth/sign-up"
+            className="text-purple-600 hover:underline"
+          >
             Sign up
           </Link>
         </p>

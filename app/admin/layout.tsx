@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import AdminSidebar from "@/components/admin/sidebar";
 import AdminHeader from "@/components/admin/header";
+import AdminDebugInfo from "@/components/admin/debug-info";
 
 export default function AdminLayout({
   children,
@@ -13,11 +14,11 @@ export default function AdminLayout({
 }>) {
   const { user, isLoading, isAdmin } = useAuth();
   const router = useRouter();
-
   useEffect(() => {
-    // Redirect non-admin users back to home page
-    if (!isLoading && !isAdmin()) {
-      router.push("/");
+    // Only redirect if we've finished loading and the user is either not logged in or not an admin
+    if (!isLoading && (!user || !isAdmin())) {
+      console.log("Redirecting non-admin user", { user, isAdmin: isAdmin() });
+      router.push("/auth/login");
     }
   }, [isLoading, user, router, isAdmin]);
 
@@ -32,7 +33,6 @@ export default function AdminLayout({
   if (!user || !isAdmin()) {
     return null; // Will be redirected by the useEffect
   }
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -43,6 +43,9 @@ export default function AdminLayout({
         <AdminHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
+
+      {/* Debug information (remove in production) */}
+      <AdminDebugInfo />
     </div>
   );
 }

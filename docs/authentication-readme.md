@@ -29,7 +29,7 @@ The system implements three authentication methods:
 - `prisma/schema.prisma`: Database schema with User model including password field
 - `app/actions/register.ts`: Server action for user registration with secure password hashing
 - `components/sign-in.tsx`: Sign-in component with tabbed interface for auth methods
-- `app/auth/signup/page.tsx`: Sign-up page with form validation
+- `app/auth/sign-up/page.tsx`: Sign-up page with form validation
 - `app/auth/error/page.tsx`: Enhanced error page with detailed error messaging
 - `.env.local`: Environment configuration with authentication providers' credentials
 

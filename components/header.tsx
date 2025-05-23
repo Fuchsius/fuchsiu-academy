@@ -66,7 +66,7 @@ export const Header = () => {
     return (
       <div className="hidden lg:flex items-center space-x-4">
         <Link
-          href="/auth/signup"
+          href="/auth/sign-up"
           className="inline-flex justify-center items-center w-28 px-4 py-2.5 rounded-xl font-medium leading-tight text-sm text-myprimary hover:text-mysecondary transition-all duration-200"
         >
           Sign Up
@@ -104,7 +104,7 @@ export const Header = () => {
     return (
       <div className="flex flex-col items-center space-y-4">
         <Link
-          href="/auth/signup"
+          href="/auth/sign-up"
           className="inline-flex justify-center items-center w-40 px-4 py-3 rounded-xl font-medium text-base text-myprimary hover:text-mysecondary border border-myprimary"
           onClick={() => setIsMenuOpen(false)}
         >
