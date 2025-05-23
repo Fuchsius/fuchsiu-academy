@@ -47,7 +47,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
   DropdownMenuPortal,
-} from "@/components/ui/fixed/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast"; // Import react-hot-toast
 import { Spinner } from "@/components/ui/spinner";
