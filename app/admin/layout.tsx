@@ -18,7 +18,7 @@ export default function AdminLayout({
     // Only redirect if we've finished loading and the user is either not logged in or not an admin
     if (!isLoading && (!user || !isAdmin())) {
       console.log("Redirecting non-admin user", { user, isAdmin: isAdmin() });
-      router.push("/auth/login");
+      router.push("/auth/sign-in");
     }
   }, [isLoading, user, router, isAdmin]);
 

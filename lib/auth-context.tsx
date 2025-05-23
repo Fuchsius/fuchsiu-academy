@@ -24,6 +24,7 @@ interface AuthContextType {
   }) => Promise<boolean>;
   logout: () => void;
   isAdmin: () => boolean;
+  isStudent: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +85,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return user?.role?.toUpperCase() === "ADMIN";
   };
 
+  const isStudent = () => {
+    return user?.role?.toUpperCase() === "STUDENT";
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -93,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         logout,
         isAdmin,
+        isStudent,
       }}
     >
       {children}

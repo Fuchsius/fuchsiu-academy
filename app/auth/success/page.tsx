@@ -12,7 +12,7 @@ export default function AuthSuccessPage() {
   useEffect(() => {
     // Redirect to home if not authenticated
     if (!user) {
-      router.push("/auth/login");
+      router.push("/auth/sign-in");
       return;
     }
 

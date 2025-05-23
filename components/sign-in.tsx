@@ -10,8 +10,9 @@ export function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [authMethod, setAuthMethod] = useState<"email" | "credentials">(
-    "email"
+    "credentials"
   );
   const [error, setError] = useState("");
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
@@ -22,8 +23,8 @@ export function SignIn() {
     try {
       const result = await signIn("email", {
         email,
-        callbackUrl: "/",
         redirect: false,
+        callbackUrl: "/auth/success",
       });
 
       if (result?.error) {
@@ -39,7 +40,6 @@ export function SignIn() {
       setIsLoading(false);
     }
   };
-
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -49,8 +49,9 @@ export function SignIn() {
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/",
         redirect: false,
+        callbackUrl: "/auth/success",
+        remember: rememberMe,
       });
 
       if (result?.error) {
@@ -60,8 +61,9 @@ export function SignIn() {
         } else {
           setError(result.error);
         }
-      } else if (result?.url) {
-        router.push(result.url);
+      } else {
+        // On successful login, redirect to success page which handles role-based routing
+        router.push("/auth/success");
       }
     } catch (error) {
       console.error("Error signing in:", error);
@@ -70,14 +72,16 @@ export function SignIn() {
       setIsLoading(false);
     }
   };
-
   const handleGoogleSignIn = () => {
     setIsLoading(true);
-    signIn("google", { callbackUrl: "/" });
+    signIn("google", {
+      callbackUrl: "/auth/success",
+      redirect: true,
+    });
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full h-full">
       {/* Authentication Method Tabs */}
       <div className="flex border-b">
         <button
@@ -101,14 +105,12 @@ export function SignIn() {
           Email Link
         </button>
       </div>
-
       {/* Error Display */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
           {error}
         </div>
       )}
-
       {/* Magic Link Form */}
       {authMethod === "email" && (
         <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
@@ -134,8 +136,7 @@ export function SignIn() {
             {isLoading ? "Sending link..." : "Sign In with Email Link"}
           </button>
         </form>
-      )}
-
+      )}{" "}
       {/* Credentials Form */}
       {authMethod === "credentials" && (
         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
@@ -167,6 +168,24 @@ export function SignIn() {
               placeholder="Your password"
             />
           </div>
+
+          {/* Remember Me Checkbox */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="remember-me"
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-700"
+            >
+              Remember me
+            </label>
+          </div>
+
           <button
             type="submit"
             className="w-full p-2 rounded bg-purple-600 hover:bg-purple-700 text-white"
@@ -176,7 +195,6 @@ export function SignIn() {
           </button>
         </form>
       )}
-
       {/* Sign Up Link */}
       <div className="text-center">
         <p className="text-sm text-gray-600">
@@ -189,7 +207,6 @@ export function SignIn() {
           </Link>
         </p>
       </div>
-
       {/* Social Sign In */}
       <div className="relative flex items-center justify-center mt-6">
         <div className="absolute inset-0 flex items-center">
@@ -199,7 +216,6 @@ export function SignIn() {
           Or continue with
         </div>
       </div>
-
       <button
         type="button"
         onClick={handleGoogleSignIn}
