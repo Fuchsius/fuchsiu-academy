@@ -3,7 +3,7 @@
 import React, { createContext, useContext } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 
-type UserRole = "admin" | "student" | "instructor";
+type UserRole = "ADMIN" | "STUDENT" | "INSTRUCTOR";
 
 type User = {
   id: string;
@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
 
   const isLoading = status === "loading";
-
   // Convert session.user to the format expected by existing components
   const user = session?.user
     ? {
@@ -42,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: session.user.email || "",
         fullName: session.user.name || session.user.email?.split("@")[0] || "",
         name: session.user.name || session.user.email?.split("@")[0] || "",
-        role: ((session.user as any).role as UserRole) || "student",
+        role: (session.user.role as UserRole) || "STUDENT",
       }
     : null;
   // Compatibility methods
@@ -82,9 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     signOut();
   };
-
   const isAdmin = () => {
-    return user?.role === "admin";
+    return user?.role?.toUpperCase() === "ADMIN";
   };
 
   return (

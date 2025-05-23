@@ -20,11 +20,16 @@ interface Student {
   id: string;
   userId: string;
   createdAt: Date;
+  updatedAt: Date;
+  phone: string | null;
+  address: string | null;
   user: {
     id: string;
-    name: string;
-    email: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
   };
+  certificates?: { id: string }[];
   _count: {
     certificates: number;
   };
@@ -37,8 +42,9 @@ interface Order {
   status: OrderStatus;
   user: {
     id: string;
-    name: string;
-    email: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
   };
 }
 
@@ -153,12 +159,10 @@ export default async function AdminDashboardPage() {
                               {order.orderId}
                             </Link>
                           </TableCell>
-                          <TableCell>{order.user.name}</TableCell>
+                          <TableCell>{order.user.name}</TableCell>{" "}
                           <TableCell>
                             LKR{" "}
-                            {parseFloat(
-                              order.amount.toString()
-                            ).toLocaleString()}
+                            {Number(order.amount.toString()).toLocaleString()}
                           </TableCell>
                           <TableCell>
                             <OrderStatusBadge status={order.status} />
