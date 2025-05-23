@@ -251,15 +251,23 @@ const DropdownMenuSub = ({ children }: DropdownMenuProps) => {
 };
 DropdownMenuSub.displayName = "DropdownMenuSub";
 
+interface DropdownMenuSubTriggerProps extends DropdownMenuTriggerProps {
+  disabled?: boolean;
+}
+
 const DropdownMenuSubTrigger = React.forwardRef<
   HTMLButtonElement,
-  DropdownMenuTriggerProps // Can reuse existing TriggerProps
->(({ className, children, ...props }, ref) => {
+  DropdownMenuSubTriggerProps // Use the new extended props interface
+>(({ className, children, disabled, ...props }, ref) => {
   // This is a simplified version. A full implementation might need context
   // to control the parent and sub-menu states.
   const [open, setOpen] = React.useState(false); // Basic open state for sub-trigger
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
     e.stopPropagation(); // Prevent closing parent menus immediately
     setOpen(!open);
     // Potentially communicate with parent/context here
@@ -275,9 +283,11 @@ const DropdownMenuSubTrigger = React.forwardRef<
       data-state={open ? "open" : "closed"} // For styling based on state
       className={cn(
         "flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[state=open]:bg-gray-100 hover:bg-gray-100",
+        disabled && "opacity-50 cursor-not-allowed", // Add disabled styles
         className
       )}
       onClick={handleClick} // Use the new handleClick
+      disabled={disabled} // Pass disabled to the button element
       {...props}
     >
       {children}

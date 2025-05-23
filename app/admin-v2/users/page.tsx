@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useMemo, ChangeEvent } from "react";
+import React, {
+  useState,
+  useMemo,
+  ChangeEvent,
+  useEffect,
+  useCallback,
+} from "react";
 import {
   MdSearch,
   MdFilterList,
@@ -42,6 +48,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast"; // Import react-hot-toast
+import { Spinner } from "@/components/ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -50,8 +59,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label"; // Assuming Label component exists
 
 // Define UserRole enum locally, mirroring Prisma
 enum UserRole {
@@ -71,62 +78,18 @@ interface User {
   studentProfile?: { id: string } | null; // Simplified student profile
 }
 
-// Mock data for initial UI rendering
-const mockUsersData: User[] = [
-  {
-    id: "user-001",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: UserRole.ADMIN,
-    isBlocked: false,
-    createdAt: "2024-01-15T09:00:00Z",
-  },
-  {
-    id: "user-002",
-    name: "Student User One",
-    email: "student1@example.com",
-    role: UserRole.STUDENT,
-    isBlocked: false,
-    createdAt: "2024-02-20T10:00:00Z",
-    studentProfile: { id: "student-profile-001" },
-  },
-  {
-    id: "user-003",
-    name: "Instructor User",
-    email: "instructor@example.com",
-    role: UserRole.INSTRUCTOR,
-    isBlocked: true,
-    createdAt: "2024-03-10T11:00:00Z",
-  },
-  {
-    id: "user-004",
-    name: "Student User Two",
-    email: "student2@example.com",
-    role: UserRole.STUDENT,
-    isBlocked: false,
-    createdAt: "2024-04-05T14:30:00Z",
-    studentProfile: { id: "student-profile-002" },
-  },
-  {
-    id: "user-005",
-    name: "Blocked Student",
-    email: "blocked.student@example.com",
-    role: UserRole.STUDENT,
-    isBlocked: true,
-    createdAt: "2023-12-01T08:00:00Z",
-  },
-];
-
 const ITEMS_PER_PAGE = 10;
 
 const UsersPage = () => {
-  const [users, setUsers] = useState<User[]>(mockUsersData);
+  const [users, setUsers] = useState<User[]>([]); // Initialize with empty array
+  const [isLoading, setIsLoading] = useState(true); // Loading state
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState<UserRole | "all">("all");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "active" | "blocked"
   >("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
@@ -135,46 +98,75 @@ const UsersPage = () => {
     description: "",
   });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  // const { toast } = useToast(); // Remove old toast hook
+
+  // Debounce search term
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [searchTerm]);
+
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.append("page", currentPage.toString());
+      params.append("limit", ITEMS_PER_PAGE.toString());
+      if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
+      if (filterRole !== "all") params.append("role", filterRole);
+      if (filterStatus !== "all") params.append("status", filterStatus);
+
+      const response = await fetch(`/api/admin/users?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch users: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setUsers(data.users || []);
+      setTotalPages(data.totalPages || 1);
+      // setCurrentPage(data.currentPage || 1); // This might cause a loop if currentPage is also a dependency
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Failed to load users. Please try again."); // Use react-hot-toast
+      setUsers([]); // Clear users on error
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, debouncedSearchTerm, filterRole, filterStatus, toast]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]); // fetchUsers is memoized with useCallback
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, filterRole, filterStatus]);
 
   const filteredAndSortedUsers = useMemo(() => {
-    let filtered = users
-      .filter((user) => {
-        const searchLower = searchTerm.toLowerCase();
-        return (
-          (user.name?.toLowerCase() || "").includes(searchLower) ||
-          (user.email?.toLowerCase() || "").includes(searchLower)
-        );
-      })
-      .filter((user) => {
-        if (filterRole === "all") return true;
-        return user.role === filterRole;
-      })
-      .filter((user) => {
-        if (filterStatus === "all") return true;
-        return filterStatus === "blocked" ? user.isBlocked : !user.isBlocked;
-      });
-
-    // Simple sort by creation date (newest first)
-    filtered.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    return filtered;
-  }, [users, searchTerm, filterRole, filterStatus]);
+    // Client-side filtering/sorting is no longer needed as server handles it.
+    // However, if you want to keep some client-side responsiveness while backend fetches,
+    // you could apply some basic filtering here on the `users` state.
+    // For now, we directly use the `users` state fetched from the server.
+    return users;
+  }, [users]);
 
   const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredAndSortedUsers.slice(
-      startIndex,
-      startIndex + ITEMS_PER_PAGE
-    );
-  }, [filteredAndSortedUsers, currentPage]);
+    // Pagination is now handled by the API, so this just returns the fetched users for the current page.
+    return filteredAndSortedUsers;
+  }, [filteredAndSortedUsers]);
 
-  const totalPages = Math.ceil(filteredAndSortedUsers.length / ITEMS_PER_PAGE);
+  // totalPages is now set from API response
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1);
+    // setCurrentPage(1); // Page reset is handled by useEffect on debouncedSearchTerm
   };
   const handleClearSearch = () => setSearchTerm("");
 
@@ -218,30 +210,72 @@ const UsersPage = () => {
   };
 
   const handleBlockToggle = async (userToUpdate: User, block: boolean) => {
-    console.log(`${block ? "Blocking" : "Unblocking"} user:`, userToUpdate);
-    // TODO: Implement API call
-    setUsers((prevUsers) =>
-      prevUsers.map((u) =>
-        u.id === userToUpdate.id ? { ...u, isBlocked: block } : u
-      )
-    );
     setIsConfirmDialogOpen(false);
     setSelectedUser(null);
+    try {
+      const response = await fetch(
+        `/api/admin/users?userId=${userToUpdate.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isBlocked: block }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Failed to ${block ? "block" : "unblock"} user.`
+        );
+      }
+      toast.success(
+        // Use react-hot-toast
+        `User ${userToUpdate.name || userToUpdate.email} has been ${
+          block ? "blocked" : "unblocked"
+        }.`
+      );
+      fetchUsers(); // Refresh users list
+    } catch (error: any) {
+      console.error("Error updating user status:", error);
+      toast.error(error.message || "Could not update user status."); // Use react-hot-toast
+    }
   };
 
   const handleChangeRole = async (userToUpdate: User, newRole: UserRole) => {
-    console.log(`Changing role for ${userToUpdate.name} to ${newRole}`);
-    // TODO: Implement API call
-    // If role changes to STUDENT, and no studentProfile exists, one might need to be created.
-    // This logic would typically be on the backend.
-    setUsers((prevUsers) =>
-      prevUsers.map((u) =>
-        u.id === userToUpdate.id ? { ...u, role: newRole } : u
-      )
-    );
     setIsConfirmDialogOpen(false);
     setSelectedUser(null);
+    try {
+      const response = await fetch(
+        `/api/admin/users?userId=${userToUpdate.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: newRole }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to change user role.");
+      }
+      toast.success(
+        // Use react-hot-toast
+        `User ${
+          userToUpdate.name || userToUpdate.email
+        }'s role changed to ${newRole}.`
+      );
+      fetchUsers(); // Refresh users list
+    } catch (error: any) {
+      console.error("Error changing user role:", error);
+      toast.error(error.message || "Could not change user role."); // Use react-hot-toast
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -260,7 +294,13 @@ const UsersPage = () => {
         <CardHeader>
           <CardTitle>All Users</CardTitle>
           <CardDescription>
-            View, manage, and update user accounts and roles.
+            View, manage, and update user accounts and roles. (
+            {isLoading
+              ? "Loading..."
+              : `${filteredAndSortedUsers.length} of ${
+                  totalPages * ITEMS_PER_PAGE
+                } users`}
+            )
           </CardDescription>
           <div className="mt-4 flex flex-col md:flex-row md:items-center gap-2 flex-wrap">
             <div className="relative flex-grow min-w-[200px] md:min-w-[300px]">
@@ -342,7 +382,17 @@ const UsersPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {paginatedUsers.length > 0 ? (
+          {isLoading && (
+            <div className="flex justify-center items-center py-10">
+              <Spinner size="lg" /> {/* Corrected size to lg */}
+            </div>
+          )}
+          {!isLoading && paginatedUsers.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground">
+              No users found matching your criteria.
+            </div>
+          )}
+          {!isLoading && paginatedUsers.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -387,7 +437,13 @@ const UsersPage = () => {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            disabled={isLoading}
+                          >
+                            {" "}
+                            {/* Disable actions while loading */}
                             <MdMoreVert className="h-5 w-5" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -400,6 +456,7 @@ const UsersPage = () => {
                                 openConfirmationDialog(user, "unblock")
                               }
                               className="flex items-center gap-2"
+                              disabled={isLoading}
                             >
                               <MdCheckCircle className="h-4 w-4 text-green-500" />{" "}
                               Unblock User
@@ -410,13 +467,17 @@ const UsersPage = () => {
                                 openConfirmationDialog(user, "block")
                               }
                               className="flex items-center gap-2"
+                              disabled={isLoading}
                             >
                               <MdBlock className="h-4 w-4 text-red-500" /> Block
                               User
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSub>
-                            <DropdownMenuSubTrigger className="flex items-center gap-2">
+                            <DropdownMenuSubTrigger
+                              className="flex items-center gap-2"
+                              disabled={isLoading}
+                            >
                               <MdEdit className="h-4 w-4" /> Change Role
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
@@ -428,7 +489,7 @@ const UsersPage = () => {
                                 {Object.values(UserRole).map((role) => (
                                   <DropdownMenuItem
                                     key={role}
-                                    disabled={user.role === role}
+                                    disabled={user.role === role || isLoading}
                                     onClick={() =>
                                       openConfirmationDialog(
                                         user,
@@ -443,14 +504,6 @@ const UsersPage = () => {
                               </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                           </DropdownMenuSub>
-                          {/* 
-                           // Future: Edit user details
-                           <DropdownMenuItem asChild>
-                            <Link href={`/admin-v2/users/edit/${user.id}`} className="flex items-center gap-2">
-                                <MdEdit className="h-4 w-4" /> Edit Details
-                            </Link>
-                           </DropdownMenuItem> 
-                           */}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -458,12 +511,8 @@ const UsersPage = () => {
                 ))}
               </TableBody>
             </Table>
-          ) : (
-            <div className="text-center py-10 text-muted-foreground">
-              No users found matching your criteria.
-            </div>
           )}
-          {totalPages > 1 && (
+          {!isLoading && totalPages > 1 && (
             <div className="flex items-center justify-center space-x-2 py-4">
               <Button
                 variant="outline"

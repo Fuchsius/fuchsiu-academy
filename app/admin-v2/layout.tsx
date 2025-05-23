@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import AdminSidebar from "@/components/admin/sidebar"; // Reusing existing sidebar
 import AdminHeader from "@/components/admin/header"; // Reusing existing header
+import { Toaster } from "react-hot-toast";
 // import AdminDebugInfo from "@/components/admin/debug-info"; // Can be added if needed
 
 export default function AdminLayoutV2({
@@ -70,6 +71,7 @@ export default function AdminLayoutV2({
         <AdminHeader isMenuOpen={isMenuOpen} onMenuToggle={handleMenuToggle} />{" "}
         {/* Ensure this header is suitable or create a new one */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
+        <Toaster />
       </div>
       {/* Optional Debug information (remove or conditionally render in production) */}
       {/* <AdminDebugInfo /> */}
