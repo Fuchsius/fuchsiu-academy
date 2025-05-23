@@ -71,7 +71,7 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json();
-    const { isBlocked, role } = body;
+    const { isBlocked, role, createStudentProfile } = body;
 
     if (typeof isBlocked !== "boolean" && !role) {
       return new NextResponse(
@@ -86,29 +86,46 @@ export async function PATCH(request: Request) {
     }
     if (role && Object.values(UserRole).includes(role)) {
       updateData.role = role;
-      // If changing role to STUDENT, ensure a student profile exists or create one.
-      // This logic might be more complex depending on your application rules.
-      // For simplicity, we'll assume studentProfile creation is handled elsewhere or not strictly required here.
-      // If it were required:
-      // if (role === UserRole.STUDENT) {
-      //   await prisma.student.upsert({
-      //     where: { userId: userId },
-      //     update: {}, // No update needed if it exists
-      //     create: { userId: userId }, // Create if it doesn't exist
-      //   });
-      // }
     }
 
     if (Object.keys(updateData).length === 0) {
       return new NextResponse("No valid fields to update", { status: 400 });
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-      include: {
-        studentProfile: { select: { id: true } },
-      },
+    // Start a transaction to ensure all operations succeed or fail together
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      // Update the user
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: updateData,
+        include: {
+          studentProfile: { select: { id: true } },
+        },
+      });
+
+      // If createStudentProfile is true, create a student profile if it doesn't exist
+      if (
+        createStudentProfile &&
+        role === UserRole.STUDENT &&
+        !user.studentProfile
+      ) {
+        await tx.student.create({
+          data: {
+            userId: userId,
+            isConfirmed: false, // Default value, can be changed by admin later
+          },
+        });
+
+        // Refetch user with the newly created student profile
+        return tx.user.findUnique({
+          where: { id: userId },
+          include: {
+            studentProfile: { select: { id: true } },
+          },
+        });
+      }
+
+      return user;
     });
 
     return NextResponse.json(updatedUser);

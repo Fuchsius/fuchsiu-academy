@@ -47,7 +47,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
   DropdownMenuPortal,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/fixed/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast"; // Import react-hot-toast
 import { Spinner } from "@/components/ui/spinner";
@@ -178,7 +178,7 @@ const UsersPage = () => {
 
   const openConfirmationDialog = (
     user: User,
-    actionType: "block" | "unblock" | "changeRole",
+    actionType: "block" | "unblock" | "changeRole" | "markAsStudent",
     newRole?: UserRole
   ) => {
     setSelectedUser(user);
@@ -200,6 +200,11 @@ const UsersPage = () => {
       title = `Change Role for ${user.name || user.email}?`;
       description = `Are you sure you want to change this user's role to ${newRole}?`;
       actionFunction = () => handleChangeRole(user, newRole);
+    } else if (actionType === "markAsStudent") {
+      title = `Mark ${user.name || user.email} as Student?`;
+      description =
+        "This will add the user to the Student table and set their role to STUDENT.";
+      actionFunction = () => handleMarkAsStudent(user);
     } else {
       return; // Should not happen
     }
@@ -257,7 +262,6 @@ const UsersPage = () => {
         throw new Error(errorData.message || "Failed to change user role.");
       }
       toast.success(
-        // Use react-hot-toast
         `User ${
           userToUpdate.name || userToUpdate.email
         }'s role changed to ${newRole}.`
@@ -265,17 +269,40 @@ const UsersPage = () => {
       fetchUsers(); // Refresh users list
     } catch (error: any) {
       console.error("Error changing user role:", error);
-      toast.error(error.message || "Could not change user role."); // Use react-hot-toast
+      toast.error(error.message || "Could not change user role.");
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
+  const handleMarkAsStudent = async (userToUpdate: User) => {
+    setIsConfirmDialogOpen(false);
+    setSelectedUser(null);
+    try {
+      const response = await fetch(
+        `/api/admin/users?userId=${userToUpdate.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            role: UserRole.STUDENT,
+            createStudentProfile: true,
+          }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to mark user as student.");
+      }
+      toast.success(
+        `User ${
+          userToUpdate.name || userToUpdate.email
+        } marked as student and added to student table.`
+      );
+      fetchUsers(); // Refresh users list
+    } catch (error: any) {
+      console.error("Error marking user as student:", error);
+      toast.error(error.message || "Could not mark user as student.");
+    }
+  };
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -382,163 +409,253 @@ const UsersPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading && (
-            <div className="flex justify-center items-center py-10">
-              <Spinner size="lg" /> {/* Corrected size to lg */}
-            </div>
-          )}
-          {!isLoading && paginatedUsers.length === 0 && (
-            <div className="text-center py-10 text-muted-foreground">
-              No users found matching your criteria.
-            </div>
-          )}
-          {!isLoading && paginatedUsers.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead>Joined On</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.name || "N/A"}
-                    </TableCell>
-                    <TableCell>{user.email || "N/A"}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          user.role === UserRole.ADMIN
-                            ? "default"
-                            : user.role === UserRole.INSTRUCTOR
-                            ? "secondary"
-                            : "outline"
-                        }
-                      >
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge
-                        variant={user.isBlocked ? "destructive" : "default"}
-                      >
-                        {user.isBlocked ? "Blocked" : "Active"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            disabled={isLoading}
-                          >
-                            {" "}
-                            {/* Disable actions while loading */}
-                            <MdMoreVert className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Manage User</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {user.isBlocked ? (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                openConfirmationDialog(user, "unblock")
-                              }
-                              className="flex items-center gap-2"
-                              disabled={isLoading}
-                            >
-                              <MdCheckCircle className="h-4 w-4 text-green-500" />{" "}
-                              Unblock User
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                openConfirmationDialog(user, "block")
-                              }
-                              className="flex items-center gap-2"
-                              disabled={isLoading}
-                            >
-                              <MdBlock className="h-4 w-4 text-red-500" /> Block
-                              User
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger
-                              className="flex items-center gap-2"
-                              disabled={isLoading}
-                            >
-                              <MdEdit className="h-4 w-4" /> Change Role
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuLabel>
-                                  Set Role To
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {Object.values(UserRole).map((role) => (
-                                  <DropdownMenuItem
-                                    key={role}
-                                    disabled={user.role === role || isLoading}
-                                    onClick={() =>
-                                      openConfirmationDialog(
-                                        user,
-                                        "changeRole",
-                                        role
-                                      )
-                                    }
-                                  >
-                                    {role} {user.role === role && "(Current)"}
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+          {/* Table with loading state */}
+          <div className="relative min-h-[300px]">
+            {/* Conditional loading overlay inside the table area */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/80 flex justify-center items-center z-10">
+                <Spinner size="lg" />
+              </div>
+            )}
+
+            {/* Always render table structure, which will be overlaid with spinner when loading */}
+            {paginatedUsers.length === 0 && !isLoading ? (
+              <div className="text-center py-10 text-muted-foreground">
+                No users found matching your criteria.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                    <TableHead>Joined On</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+                </TableHeader>
+                <TableBody>
+                  {paginatedUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">
+                        {user.name || "N/A"}
+                      </TableCell>
+                      <TableCell>{user.email || "N/A"}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            user.role === UserRole.ADMIN
+                              ? "default"
+                              : user.role === UserRole.INSTRUCTOR
+                              ? "secondary"
+                              : "outline"
+                          }
+                        >
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant={user.isBlocked ? "destructive" : "default"}
+                        >
+                          {user.isBlocked ? "Blocked" : "Active"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={isLoading}
+                            >
+                              <MdMoreVert className="h-5 w-5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Manage User</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {user.isBlocked ? (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  openConfirmationDialog(user, "unblock")
+                                }
+                                className="flex items-center gap-2"
+                                disabled={isLoading}
+                              >
+                                <MdCheckCircle className="h-4 w-4 text-green-500" />{" "}
+                                Unblock User
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  openConfirmationDialog(user, "block")
+                                }
+                                className="flex items-center gap-2"
+                                disabled={isLoading}
+                              >
+                                <MdBlock className="h-4 w-4 text-red-500" />{" "}
+                                Block User
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger
+                                className="flex items-center gap-2"
+                                disabled={isLoading}
+                              >
+                                <MdEdit className="h-4 w-4" /> Change Role
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                  <DropdownMenuLabel>
+                                    Set Role To
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  {Object.values(UserRole).map((role) => (
+                                    <DropdownMenuItem
+                                      key={role}
+                                      disabled={user.role === role || isLoading}
+                                      onClick={() =>
+                                        openConfirmationDialog(
+                                          user,
+                                          "changeRole",
+                                          role
+                                        )
+                                      }
+                                    >
+                                      {role} {user.role === role && "(Current)"}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuSubContent>
+                              </DropdownMenuPortal>
+                            </DropdownMenuSub>
+
+                            {/* Add Mark as Student option (if not already a student) */}
+                            {!user.studentProfile && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  openConfirmationDialog(user, "markAsStudent")
+                                }
+                                className="flex items-center gap-2"
+                                disabled={isLoading}
+                              >
+                                <MdPersonAdd className="h-4 w-4 text-blue-500" />
+                                Mark as Student
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+
+          {/* Pagination - only show when not loading and there are multiple pages */}
           {!isLoading && totalPages > 1 && (
             <div className="flex items-center justify-center space-x-2 py-4">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || isLoading}
               >
                 Previous
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </Button>
+
+              {/* When there are many pages, show a limited number with ellipsis */}
+              {totalPages <= 7 ? (
+                // Show all pages if 7 or fewer
+                Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(page)}
+                      disabled={isLoading}
+                    >
+                      {page}
+                    </Button>
+                  )
                 )
+              ) : (
+                // When more than 7 pages, show a subset with ellipsis
+                <>
+                  {/* First page */}
+                  <Button
+                    variant={currentPage === 1 ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(1)}
+                    disabled={isLoading}
+                  >
+                    1
+                  </Button>
+
+                  {/* Ellipsis if current page is far from the start */}
+                  {currentPage > 3 && <span className="mx-1">...</span>}
+
+                  {/* Pages around current page */}
+                  {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (currentPage <= 2) {
+                      // Near the start
+                      pageNum = i + 2; // Show 2, 3, 4
+                    } else if (currentPage >= totalPages - 1) {
+                      // Near the end
+                      pageNum = totalPages - 3 + i; // Show totalPages-3, totalPages-2, totalPages-1
+                    } else {
+                      // In the middle
+                      pageNum = currentPage - 1 + i; // Show currentPage-1, currentPage, currentPage+1
+                    }
+
+                    // Only render if the page is within range and not the first/last page
+                    if (pageNum > 1 && pageNum < totalPages) {
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={
+                            currentPage === pageNum ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          disabled={isLoading}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {/* Ellipsis if current page is far from the end */}
+                  {currentPage < totalPages - 2 && (
+                    <span className="mx-1">...</span>
+                  )}
+
+                  {/* Last page */}
+                  <Button
+                    variant={currentPage === totalPages ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={isLoading}
+                  >
+                    {totalPages}
+                  </Button>
+                </>
               )}
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || isLoading}
               >
                 Next
               </Button>
