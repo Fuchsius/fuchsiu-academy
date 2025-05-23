@@ -62,6 +62,7 @@ export default function AdminLayoutV2({
       <AdminSidebar
         isMenuOpen={isMenuOpen}
         onMenuToggle={handleMenuToggle}
+        basePath="/admin-v2" // Added basePath prop
       />{" "}
       {/* Ensure this sidebar has links for /admin-v2 if needed, or create a new one */}
       {/* Main Content */}
